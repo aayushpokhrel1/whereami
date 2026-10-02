@@ -1,0 +1,52 @@
+# Working in this repo
+
+`whereami` is a single-module Python CLI with no dependencies. It is small on purpose. The
+hardest thing about it is not the code, it is resisting the urge to add storage, a server, or
+a second source of truth.
+
+## Where things are written down
+
+| Write it in | When it is |
+| --- | --- |
+| `README.md` | What it is, install, usage, the flags. The public face |
+| `PRODUCT.md` | Who it is for, decisions, what is deferred **and why** |
+| `docs/OPERATIONS.md` | Run, verify, release to PyPI, hook setup, environment traps |
+| a **code comment at the site** | A rule about specific code (a git invocation that must stay quiet on a non-repo, a date format the store depends on) |
+| the **Obsidian vault** | A lesson that would change how I work on a *different* project |
+| `docs/superpowers/specs/` | The design of one feature, written before building it. Tracked: a spec explains why the code is shaped as it is |
+| `docs/superpowers/plans/` | The task breakdown for one feature |
+| `HANDOVER.md` | **Only** current state: commit, published version, test count, what is half-done, what is next |
+| nowhere | A dated narrative of what you did today. `git log` already holds it, in more detail |
+
+`HANDOVER.md` is gitignored and local-only, so nothing durable may live there. Before adding a
+line to it, ask: will this still be true in a month? If yes it belongs in a doc above.
+
+There is deliberately **no `DESIGN.md`**: there is no UI. The terminal table's column rules
+live in the code that prints them, next to the code.
+
+**Do not create a `LESSONS.md`.** A lesson has one home, chosen by reach: a rule about specific
+code is a comment at that code, a lesson that generalises goes in the vault, and a dated
+narrative goes in `git log`. Two copies drift, and the drift is what causes wrong work.
+
+**Updating docs means making them TRUE, not just appending what shipped.** Correct or strike a
+stale claim where it sits rather than adding a newer entry beneath it, because the next reader
+may hit the old one first. Cross-check every number against reality rather than trusting the
+file. "Update the docs" means sweep all of them.
+
+## Project rules
+
+- **Standard library only.** No dependencies, ever. The install has to be one line for a
+  stranger, and a tool that prints a table does not need a package.
+- **Nothing is stored that git can tell us.** Branch, last commit time, dirty state and
+  unpushed count are derived on every run. The store holds only `stage`, `note`,
+  `stage_set_at`, and the list of roots. If you find yourself caching a derived field, you
+  have just built the staleness this tool exists to prevent.
+- **No second source of truth.** `whereami md` writes a view, regenerated and never
+  hand-edited. It is not a store.
+- **git failures are normal, not errors.** Three of the folders this was built against have
+  no git at all. Every git call degrades to "no git" rather than raising.
+- **Verify with `python -m pytest`** (or `python test_whereami.py` for the self-check). The
+  drift and sort logic is the only non-trivial code here and it has to stay covered: the `!`
+  flag is the entire value proposition, so a test that goes red when it breaks is worth more
+  than any doc.
+- **Work on `main`.** Solo project. Branch only to let CI gate something risky first.

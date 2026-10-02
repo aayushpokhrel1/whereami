@@ -1,0 +1,32 @@
+[project]
+name = "whereami"
+version = "0.1.0"
+description = "A board for the repos you forgot about. Derives project state from git instead of asking you to type it."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Aayush Pokhrel" }]
+keywords = ["git", "projects", "cli", "dashboard", "productivity"]
+classifiers = [
+  "Environment :: Console",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Version Control :: Git",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/aayushpokhrel1/whereami"
+
+[project.scripts]
+whereami = "whereami:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["whereami.py"]
+
+[tool.hatch.build.targets.sdist]
+include = ["whereami.py", "README.md", "LICENSE", "pyproject.toml"]
