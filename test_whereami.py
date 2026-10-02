@@ -18,7 +18,7 @@ def make_repo(path: Path, when: datetime | None = None) -> None:
     path.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ)
     if when is not None:
-        stamp = when.isoformat()
+        stamp = when.isoformat() + " +0000"
         env["GIT_AUTHOR_DATE"] = stamp
         env["GIT_COMMITTER_DATE"] = stamp
     subprocess.run(
@@ -123,9 +123,27 @@ def test_suspect_row_sorts_above_older_quiet_row(tmp_path: Path) -> None:
             },
         },
     )
+    # ParkedNoGit matches both the parked and the no-git group. No git has to
+    # win: while it was grouped as parked, its absent commit date read as oldest
+    # and hoisted it above the real parked repo.
+    (root / "ParkedNoGit").mkdir()
+    make_repo(root / "ParkedRepo", when=now - timedelta(days=5))
+    store["projects"]["ParkedNoGit"] = {
+        "stage": "parked",
+        "note": "",
+        "stage_set_at": (now - timedelta(days=90)).isoformat(),
+    }
+    # Stage set AFTER its last commit, so ParkedRepo carries no "!" and the
+    # grouping rule is what this assertion actually exercises.
+    store["projects"]["ParkedRepo"] = {
+        "stage": "parked",
+        "note": "",
+        "stage_set_at": (now - timedelta(days=1)).isoformat(),
+    }
     names = [row.name for row in whereami.build_rows(store, now)]
 
     assert names.index("Suspect") < names.index("Quiet")
+    assert names.index("ParkedRepo") < names.index("ParkedNoGit")
 
 
 def test_invalid_stage_exits_two_without_writing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

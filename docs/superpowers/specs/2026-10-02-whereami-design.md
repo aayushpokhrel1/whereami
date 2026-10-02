@@ -89,7 +89,8 @@ Three, computed at display time:
 
 A folder with no `.git` shows `-` for activity and `no git` as a flag. It carries no `!`,
 since there is no commit to compare against. Three of the eighteen target folders are in this
-state, so it is a normal case, not an error path.
+state, so it is a normal case, not an error path. A `missing` folder replaces `no git` rather
+than carrying both, since `missing` is the more specific fact.
 
 ## Sort
 
@@ -97,6 +98,11 @@ Stalest first, by time since last commit, descending. Rows carrying `!` are hois
 top regardless of age: a suspect row is the one worth acting on. `parked` rows sort after
 everything active, since they are deliberately idle and should not dominate the board, and
 `no git` rows sort last, since there is no signal to rank them by.
+
+A row can match both `parked` and `no git`, and the no-git group must win. While parked was
+tested first, a parked folder with no commit date read as the oldest row in the parked group
+and was hoisted above the real parked repos. `test_suspect_row_sorts_above_older_quiet_row`
+covers this, and was confirmed to go red before it went green.
 
 ## Error handling
 

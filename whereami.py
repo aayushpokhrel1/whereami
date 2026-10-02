@@ -65,8 +65,12 @@ def load_store(path: Path) -> dict:
         raise StoreError(str(exc)) from exc
     if not isinstance(data, dict):
         raise StoreError("top level is not an object")
-    data.setdefault("roots", [])
-    data.setdefault("projects", {})
+    # The store is hand-editable, so a key may be present but null or the wrong
+    # type. Coerce rather than crash later in build_rows.
+    if not isinstance(data.get("roots"), list):
+        data["roots"] = []
+    if not isinstance(data.get("projects"), dict):
+        data["projects"] = {}
     return data
 
 
@@ -89,9 +93,14 @@ def _git(repo: Path, *args: str) -> str | None:
             cwd=repo,
             capture_output=True,
             text=True,
+            # errors="replace" plus the ValueError catch below are what make the
+            # docstring's "None on ANY failure" true: on Windows a non-ASCII
+            # filename in git status output decodes under the ANSI codepage and
+            # would otherwise raise UnicodeDecodeError, which is not an OSError.
+            errors="replace",
             check=False,
         )
-    except OSError:
+    except (OSError, ValueError):
         return None
     if result.returncode != 0:
         return None
@@ -179,23 +188,25 @@ def _flags_for(
             flags.append("dirty")
         if info["ahead"] > 0:
             flags.append(f"^{info['ahead']}")
-    if not has_git:
-        flags.append("no git")
     if missing:
         flags.append("missing")
+    elif not has_git:
+        flags.append("no git")
     return flags
 
 
 def _sort_key(row: Row) -> tuple[int, datetime, str]:
     """Suspect rows first, then active, then parked, then no git. Stalest first."""
+    # Test has_git BEFORE parked: a parked folder with no git matches both, and
+    # the no-git group has to win or it sorts above every active repo.
     if "!" in row.flags:
         group = 0
-    elif row.has_git and row.stage != "parked":
-        group = 1
-    elif row.stage == "parked":
-        group = 2
-    else:
+    elif not row.has_git:
         group = 3
+    elif row.stage != "parked":
+        group = 1
+    else:
+        group = 2
     # A row with no commit has no signal to rank by, so it reads as oldest.
     stamp = row.last_commit or datetime.min
     return (group, stamp, row.name)
@@ -431,6 +442,9 @@ def main(argv: list[str] | None = None) -> int:
         # Never repair a corrupt store: losing the one hand-entered field in the
         # system would be worse than stopping.
         print(f"Corrupt store at {path}: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"Cannot write store at {path}: {exc}", file=sys.stderr)
         return 2
     return 0
 
