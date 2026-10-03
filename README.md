@@ -1,6 +1,11 @@
 # whereami
 
-A board for the repos you forgot about.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-6E56CF.svg)](#use)
+
+**A board for the repos you forgot about.**
 
 Every other project tracker asks you to type your status in. This one reads it out of git.
 Branch, last commit, uncommitted work, unpushed commits: all derived on every run, so the
@@ -9,14 +14,10 @@ field a machine cannot infer, which cycle a project is in.
 
 > **Status: pre-release.** Not yet published to PyPI. Install from source (see below).
 
-```
-PROJECT                  STAGE      TOUCHED   NOTE
-FamilyRecipes            building      21m
-Delegation Pipeline      shipped       12h     ! moved since stage set
-Chess_Coach              testing        5d     dirty
-Research_DNA             spec           5d     stuck 41d
-Budgerr                  idea            -     no git
-```
+<img src="https://raw.githubusercontent.com/aayushpokhrel1/whereami/main/docs/board.svg" alt="whereami printing a board of twenty projects, each with a stage, how long ago it was last committed to, and flags for uncommitted or unpushed work" width="717">
+
+*Real output from throwaway repos, not a mockup. Regenerate with*
+*`python scripts/demo_board.py | python scripts/board_svg.py > docs/board.svg`.*
 
 ## Install
 
