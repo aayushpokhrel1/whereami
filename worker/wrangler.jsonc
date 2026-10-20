@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wipboard",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-20",
+  "workers_dev": true,
+  "kv_namespaces": [
+    {
+      "binding": "BOARD",
+      "id": "9f69ce5adf464cb6b9e48761e07c3cdb"
+    }
+  ],
+  // BOARD_TOKEN is a secret, set with `wrangler secret put BOARD_TOKEN`.
+  // It must never appear here: this file is tracked.
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  }
+}
