@@ -545,8 +545,11 @@ def cmd_push(store: dict) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
-    rows = build_rows(store, utc_now())
-    payload = board_payload(rows, utc_now(), socket.gethostname())
+    # One instant for both, or the ages in the rows and the snapshot age on the
+    # dashboard are measured from different clocks readings.
+    now = utc_now()
+    rows = build_rows(store, now)
+    payload = board_payload(rows, now, socket.gethostname())
     # ensure_ascii=False keeps non-ASCII names and subjects as characters rather
     # than escapes; the Worker decodes the body as UTF-8.
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
