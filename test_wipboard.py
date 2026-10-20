@@ -230,3 +230,27 @@ def test_rows_carry_stage_set_at_and_branch(tmp_path: Path) -> None:
 
     assert row.branch == "main"
     assert isinstance(row.stage_set_at, datetime)
+
+
+def test_board_payload_shape():
+    # This dict is the contract the Worker parses. A silent key rename breaks the
+    # dashboard with no local failure, so the shape is asserted exactly.
+    rows = [
+        wipboard.Row(name="alpha", stage="building", note="n",
+                     last_commit=datetime(2026, 10, 20, 12, 0), flags=["!"],
+                     has_git=True, branch="main", subject="s", changed=2,
+                     stage_set_at=datetime(2026, 10, 1, 9, 0)),
+        wipboard.Row(name="beta", stage="idea", note="", last_commit=None,
+                     flags=["no git"], has_git=False),
+    ]
+    p = wipboard.board_payload(rows, datetime(2026, 10, 20, 12, 5), "HOST")
+    assert p["version"] == 1
+    assert p["generated_at"] == "2026-10-20T12:05:00"
+    assert p["host"] == "HOST"
+    assert p["projects"][0] == {
+        "name": "alpha", "stage": "building", "note": "n",
+        "last_commit": "2026-10-20T12:00:00", "stage_set_at": "2026-10-01T09:00:00",
+        "flags": ["!"], "has_git": True, "branch": "main", "subject": "s", "changed": 2,
+    }
+    assert p["projects"][1]["last_commit"] is None
+    assert p["projects"][1]["stage_set_at"] is None

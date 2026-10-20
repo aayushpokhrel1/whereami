@@ -286,6 +286,45 @@ def build_rows(store: dict, now: datetime) -> list[Row]:
     return rows
 
 
+# The payload shape is owned here, not in the Worker: the Worker stores and
+# renders whatever it is given. Bump this when the shape changes, and redeploy
+# the Worker first, or it will refuse a version it does not know.
+PAYLOAD_VERSION = 1
+
+
+def board_payload(rows: list[Row], generated_at: datetime, host: str) -> dict:
+    """Serialize the board for the Worker.
+
+    Pure: no I/O and no clock read, so a test can pin both inputs. Row order is
+    preserved as given, which is _sort_key order, so the Worker inherits the
+    terminal's ordering for free.
+    """
+
+    def stamp(value: datetime | None) -> str | None:
+        return value.isoformat() if value is not None else None
+
+    return {
+        "version": PAYLOAD_VERSION,
+        "generated_at": generated_at.isoformat(),
+        "host": host,
+        "projects": [
+            {
+                "name": row.name,
+                "stage": row.stage,
+                "note": row.note,
+                "last_commit": stamp(row.last_commit),
+                "stage_set_at": stamp(row.stage_set_at),
+                "flags": list(row.flags),
+                "has_git": row.has_git,
+                "branch": row.branch,
+                "subject": row.subject,
+                "changed": row.changed,
+            }
+            for row in rows
+        ],
+    }
+
+
 def human_age(then: datetime | None, now: datetime) -> str:
     """Largest whole unit: just now, Nm, Nh, Nd, Ny. None reads as '-'."""
     if then is None:
