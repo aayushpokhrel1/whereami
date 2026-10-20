@@ -254,3 +254,38 @@ def test_board_payload_shape():
     }
     assert p["projects"][1]["last_commit"] is None
     assert p["projects"][1]["stage_set_at"] is None
+
+
+def test_push_without_config_exits_two_and_leaves_store_alone(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Catches push rewriting or clearing the store on a failure path."""
+    store_file = tmp_path / "projects.json"
+    monkeypatch.setattr(wipboard, "store_path", lambda: store_file)
+    # HOME decides where the config file is looked for, so point it at an empty
+    # directory rather than trusting the machine running the tests.
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
+    monkeypatch.delenv("WIPBOARD_ENDPOINT", raising=False)
+    monkeypatch.delenv("WIPBOARD_TOKEN", raising=False)
+    store_file.write_text('{"roots": [], "projects": {"X": {"stage": "idea"}}}')
+    before = store_file.read_bytes()
+
+    # No network: _post is replaced, so a push that got this far would fail loudly
+    # rather than reach out.
+    def explode(url: str, token: str, body: bytes) -> int:
+        raise AssertionError("push made a network call with no configuration")
+
+    monkeypatch.setattr(wipboard, "_post", explode)
+
+    assert wipboard.main(["push"]) == 2
+    assert store_file.read_bytes() == before
+
+
+def test_env_overrides_config_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The scheduled task passes env vars and has no config file."""
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path / "home"))
+    monkeypatch.setenv("WIPBOARD_ENDPOINT", "https://e.example/api/board")
+    monkeypatch.setenv("WIPBOARD_TOKEN", "t")
+    assert wipboard.push_config() == ("https://e.example/api/board", "t")

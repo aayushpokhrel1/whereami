@@ -8,8 +8,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import socket
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,6 +42,18 @@ def utc_now() -> datetime:
 
 class StoreError(Exception):
     """The store file exists but cannot be read as a store."""
+
+
+class ConfigError(Exception):
+    """Push configuration is missing or unusable. The message names the cause."""
+
+
+# The push is the only part of the tool that makes a network call, so it is the
+# only part that can hang. Ten seconds, then treat it as an ordinary failure.
+PUSH_TIMEOUT = 10
+
+# The config file is user level, next to the store, and holds a bearer token.
+CONFIG_RELATIVE = (".config", "wipboard", "config.json")
 
 
 @dataclass
@@ -457,6 +473,102 @@ def cmd_md(store: dict, target: str) -> int:
     return 0
 
 
+def config_path() -> Path:
+    """~/.config/wipboard/config.json, on every platform."""
+    return Path.home().joinpath(*CONFIG_RELATIVE)
+
+
+def _config_file() -> dict:
+    """Read the config file, or an empty dict when it is absent or unreadable.
+
+    A broken config file is not a crash: the caller reports the missing key and
+    how to set it, which is the same message a missing file produces.
+    """
+    path = config_path()
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def push_config() -> tuple[str, str]:
+    """The endpoint and token to push to.
+
+    Environment first, so a scheduled task can pass them without a file, then
+    ~/.config/wipboard/config.json. Either missing raises ConfigError naming
+    which one is absent and how to set it.
+    """
+    file_config = _config_file()
+    values: dict[str, str] = {}
+    for key, env in (("endpoint", "WIPBOARD_ENDPOINT"), ("token", "WIPBOARD_TOKEN")):
+        raw = os.environ.get(env) or file_config.get(key)
+        values[key] = raw.strip() if isinstance(raw, str) else ""
+
+    missing = [key for key in ("endpoint", "token") if not values[key]]
+    if missing:
+        env_names = " and ".join(f"WIPBOARD_{key.upper()}" for key in missing)
+        raise ConfigError(
+            f"Missing {', '.join(missing)}. Set {env_names}, "
+            f"or add {', '.join(missing)} to {config_path()}."
+        )
+    return values["endpoint"], values["token"]
+
+
+def _post(url: str, token: str, body: bytes) -> int:
+    """POST body to url with a bearer token. Return the status code.
+
+    Module level and taking everything it needs as arguments so a test can
+    replace it and no test ever reaches the network. Raises urllib.error.URLError
+    and TimeoutError, which cmd_push turns into an ordinary failure.
+    """
+    request = urllib.request.Request(
+        url,
+        data=body,
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=PUSH_TIMEOUT) as response:
+        return response.status
+
+
+def cmd_push(store: dict) -> int:
+    """Post the board to the Worker. Strictly read-only with respect to the store."""
+    try:
+        endpoint, token = push_config()
+    except ConfigError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+
+    rows = build_rows(store, utc_now())
+    payload = board_payload(rows, utc_now(), socket.gethostname())
+    # ensure_ascii=False keeps non-ASCII names and subjects as characters rather
+    # than escapes; the Worker decodes the body as UTF-8.
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+
+    try:
+        status = _post(endpoint, token, body)
+    except urllib.error.HTTPError as exc:
+        # HTTPError is a URLError subclass, so it must be caught first.
+        print(f"Push to {endpoint} failed: HTTP {exc.code}", file=sys.stderr)
+        return 2
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        reason = getattr(exc, "reason", exc)
+        print(f"Push to {endpoint} failed: {reason}", file=sys.stderr)
+        return 2
+
+    if not 200 <= status < 300:
+        print(f"Push to {endpoint} failed: HTTP {status}", file=sys.stderr)
+        return 2
+    print(f"Pushed {len(rows)} project(s) to {endpoint}")
+    return 0
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="wipboard", description=__doc__)
     sub = parser.add_subparsers(dest="command")
@@ -473,6 +585,8 @@ def _build_parser() -> argparse.ArgumentParser:
 
     md = sub.add_parser("md", help="write the board as a markdown table")
     md.add_argument("file")
+
+    sub.add_parser("push", help="post the board to the dashboard Worker")
 
     return parser
 
@@ -496,10 +610,15 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_set(store, args.project, args.stage, args.note)
         if command == "md":
             return cmd_md(store, args.file)
+        if command == "push":
+            return cmd_push(store)
     except StoreError as exc:
         # Never repair a corrupt store: losing the one hand-entered field in the
         # system would be worse than stopping.
         print(f"Corrupt store at {path}: {exc}", file=sys.stderr)
+        return 2
+    except ConfigError as exc:
+        print(str(exc), file=sys.stderr)
         return 2
     except OSError as exc:
         print(f"Cannot write store at {path}: {exc}", file=sys.stderr)
