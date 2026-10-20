@@ -1,4 +1,4 @@
-"""Tests for whereami. Standard library plus pytest, no fixtures beyond tmp_path."""
+"""Tests for wipboard. Standard library plus pytest, no fixtures beyond tmp_path."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-import whereami
+import wipboard
 
 
 def make_repo(path: Path, when: datetime | None = None) -> None:
@@ -55,7 +55,7 @@ def _store(root: Path, projects: dict) -> dict:
 
 def test_bang_fires_when_commit_is_newer_than_stage(tmp_path: Path) -> None:
     """Catches the ! flag silently stopping: it is the entire value of the tool."""
-    now = whereami.utc_now()
+    now = wipboard.utc_now()
     root = tmp_path / "root"
     root.mkdir()
     make_repo(root / "Suspect", when=now - timedelta(hours=1))
@@ -76,7 +76,7 @@ def test_bang_fires_when_commit_is_newer_than_stage(tmp_path: Path) -> None:
             },
         },
     )
-    rows = {row.name: row for row in whereami.build_rows(store, now)}
+    rows = {row.name: row for row in wipboard.build_rows(store, now)}
 
     assert "!" in rows["Suspect"].flags
     assert "!" not in rows["Quiet"].flags
@@ -84,11 +84,11 @@ def test_bang_fires_when_commit_is_newer_than_stage(tmp_path: Path) -> None:
 
 def test_folder_with_no_git_degrades(tmp_path: Path) -> None:
     """Catches a git call raising on a plain folder instead of degrading to no git."""
-    now = whereami.utc_now()
+    now = wipboard.utc_now()
     root = tmp_path / "root"
     (root / "Plain").mkdir(parents=True)
 
-    rows = whereami.build_rows(_store(root, {}), now)
+    rows = wipboard.build_rows(_store(root, {}), now)
     plain = {row.name: row for row in rows}["Plain"]
 
     assert "no git" in plain.flags
@@ -99,7 +99,7 @@ def test_folder_with_no_git_degrades(tmp_path: Path) -> None:
 
 def test_suspect_row_sorts_above_older_quiet_row(tmp_path: Path) -> None:
     """Catches the sort losing the hoist: a suspect row must outrank an older quiet one."""
-    now = whereami.utc_now()
+    now = wipboard.utc_now()
     root = tmp_path / "root"
     root.mkdir()
     make_repo(root / "Suspect", when=now - timedelta(hours=1))
@@ -140,7 +140,7 @@ def test_suspect_row_sorts_above_older_quiet_row(tmp_path: Path) -> None:
         "note": "",
         "stage_set_at": (now - timedelta(days=1)).isoformat(),
     }
-    names = [row.name for row in whereami.build_rows(store, now)]
+    names = [row.name for row in wipboard.build_rows(store, now)]
 
     assert names.index("Suspect") < names.index("Quiet")
     assert names.index("ParkedRepo") < names.index("ParkedNoGit")
@@ -149,11 +149,11 @@ def test_suspect_row_sorts_above_older_quiet_row(tmp_path: Path) -> None:
 def test_invalid_stage_exits_two_without_writing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Catches a rejected stage still rewriting the store."""
     store_file = tmp_path / "projects.json"
-    monkeypatch.setattr(whereami, "store_path", lambda: store_file)
+    monkeypatch.setattr(wipboard, "store_path", lambda: store_file)
     store_file.write_text('{"roots": [], "projects": {"X": {"stage": "idea"}}}')
     before = store_file.read_bytes()
 
-    code = whereami.main(["set", "X", "nonsense"])
+    code = wipboard.main(["set", "X", "nonsense"])
 
     assert code == 2
     assert store_file.read_bytes() == before
@@ -162,26 +162,26 @@ def test_invalid_stage_exits_two_without_writing(tmp_path: Path, monkeypatch: py
 def test_set_stamps_stage_set_at(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Catches a write path forgetting stage_set_at, which silently kills every flag."""
     store_file = tmp_path / "projects.json"
-    monkeypatch.setattr(whereami, "store_path", lambda: store_file)
+    monkeypatch.setattr(wipboard, "store_path", lambda: store_file)
     store_file.write_text('{"roots": [], "projects": {"X": {"stage": "idea"}}}')
 
-    code = whereami.main(["set", "X", "building"])
+    code = wipboard.main(["set", "X", "building"])
 
     assert code == 0
-    stored = whereami.load_store(store_file)["projects"]["X"]
+    stored = wipboard.load_store(store_file)["projects"]["X"]
     stamped = datetime.fromisoformat(stored["stage_set_at"])
-    assert abs((whereami.utc_now() - stamped).total_seconds()) < 60
+    assert abs((wipboard.utc_now() - stamped).total_seconds()) < 60
 
 
 def test_init_persists_the_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Catches a mutating command printing success without writing the store."""
     store_file = tmp_path / "projects.json"
-    monkeypatch.setattr(whereami, "store_path", lambda: store_file)
+    monkeypatch.setattr(wipboard, "store_path", lambda: store_file)
     root = tmp_path / "root"
     (root / "Alpha").mkdir(parents=True)
     (root / ".hidden").mkdir()
 
-    assert whereami.main(["init", str(root)]) == 0
+    assert wipboard.main(["init", str(root)]) == 0
 
     saved = json.loads(store_file.read_text(encoding="utf-8"))
     assert root.resolve().as_posix() in saved["roots"]

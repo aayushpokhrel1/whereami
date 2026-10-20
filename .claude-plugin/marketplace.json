@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "wipboard",
+  "description": "A board for the repos you forgot about. Derives project state from git instead of asking you to type it in.",
+  "owner": {
+    "name": "Aayush Pokhrel",
+    "url": "https://github.com/aayushpokhrel1"
+  },
+  "plugins": [
+    {
+      "name": "wipboard",
+      "description": "The /wipboard command: print the project board, or move a project to a new stage, without leaving the conversation.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

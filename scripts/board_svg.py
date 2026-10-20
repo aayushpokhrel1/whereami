@@ -1,9 +1,9 @@
-"""Render the live `whereami` board as an animated terminal SVG for the README.
+"""Render the live `wipboard` board as an animated terminal SVG for the README.
 
 Reads real tool output on stdin, so the image in the README cannot drift into
 fiction: it is whatever the tool actually printed when it was last regenerated.
 
-    PYTHONIOENCODING=utf-8 whereami | python scripts/board_svg.py > docs/board.svg
+    PYTHONIOENCODING=utf-8 wipboard | python scripts/board_svg.py > docs/board.svg
 
 Not imported by anything. It exists so the README asset can be refreshed without
 anyone reverse-engineering how it was drawn.
@@ -97,7 +97,7 @@ def main():
     ]
 
     # The typed command, one character at a time.
-    cmd = "whereami"
+    cmd = "wipboard"
     out.append(f'<text x="{x(0)}" y="{TOP - 6}" fill="#3fb950">$</text>')
     for i, ch in enumerate(cmd):
         delay = 0.12 + i * 0.07

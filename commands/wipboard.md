@@ -2,11 +2,11 @@
 description: Show the project board, or move a project to a new stage.
 ---
 
-Run `whereami` to print the board, then answer the user's question from that output.
+Run `wipboard` to print the board, then answer the user's question from that output.
 
 With arguments:
 - A stage change ("move Budgerr to spec", "Budgerr -> spec") runs
-  `whereami set <project> <stage>`, adding `--note "..."` when the user gave one.
+  `wipboard set <project> <stage>`, adding `--note "..."` when the user gave one.
 - A question ("what is stale", "what did I abandon", "what has uncommitted work") is answered
   from the board output. Do not guess at projects that are not on it.
 

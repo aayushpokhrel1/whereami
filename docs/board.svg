@@ -16,13 +16,13 @@
 <circle cx="56" cy="17" r="5" fill="#28c840"/>
 <text x="22.0" y="50" fill="#3fb950">$</text>
 <text class="c" x="37.6" y="50" fill="#e6edf3" style="animation-delay:0.12s">w</text>
-<text class="c" x="45.4" y="50" fill="#e6edf3" style="animation-delay:0.19s">h</text>
-<text class="c" x="53.2" y="50" fill="#e6edf3" style="animation-delay:0.26s">e</text>
-<text class="c" x="61.0" y="50" fill="#e6edf3" style="animation-delay:0.33s">r</text>
-<text class="c" x="68.8" y="50" fill="#e6edf3" style="animation-delay:0.40s">e</text>
+<text class="c" x="45.4" y="50" fill="#e6edf3" style="animation-delay:0.19s">i</text>
+<text class="c" x="53.2" y="50" fill="#e6edf3" style="animation-delay:0.26s">p</text>
+<text class="c" x="61.0" y="50" fill="#e6edf3" style="animation-delay:0.33s">b</text>
+<text class="c" x="68.8" y="50" fill="#e6edf3" style="animation-delay:0.40s">o</text>
 <text class="c" x="76.6" y="50" fill="#e6edf3" style="animation-delay:0.47s">a</text>
-<text class="c" x="84.4" y="50" fill="#e6edf3" style="animation-delay:0.54s">m</text>
-<text class="c" x="92.2" y="50" fill="#e6edf3" style="animation-delay:0.61s">i</text>
+<text class="c" x="84.4" y="50" fill="#e6edf3" style="animation-delay:0.54s">r</text>
+<text class="c" x="92.2" y="50" fill="#e6edf3" style="animation-delay:0.61s">d</text>
 <rect class="cur" x="100.0" y="39" width="7" height="14" fill="#e6edf3" style="animation-delay:0.68s"/>
 <text class="r" x="22.0" y="76" fill="#6e7681" style="animation-delay:0.93s">PROJECT</text>
 <text class="r" x="170.2" y="76" fill="#6e7681" style="animation-delay:0.93s">STAGE</text>

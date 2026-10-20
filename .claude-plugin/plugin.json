@@ -1,7 +1,7 @@
 {
-  "name": "whereami",
-  "description": "Read and update the whereami project board from inside a Claude Code session.",
+  "name": "wipboard",
+  "description": "Read and update the wipboard project board from inside a Claude Code session.",
   "version": "0.1.0",
   "author": { "name": "Aayush Pokhrel" },
-  "homepage": "https://github.com/aayushpokhrel1/whereami"
+  "homepage": "https://github.com/aayushpokhrel1/wipboard"
 }

@@ -3,16 +3,16 @@
 ## Run
 
 ```bash
-python whereami.py            # straight from source, no install
+python wipboard.py            # straight from source, no install
 uv tool install .             # install the console script locally
-whereami                      # then this works anywhere
+wipboard                      # then this works anywhere
 ```
 
 ## Verify
 
 ```bash
 python -m pytest              # the suite
-python test_whereami.py       # the same assertions as a standalone self-check
+python test_wipboard.py       # the same assertions as a standalone self-check
 ```
 
 The suite builds throwaway git repos in a temp directory and commits to them, so it needs
@@ -37,13 +37,13 @@ The tool only fixes forgetting if you see the board without deciding to. Two way
 **Shell profile.** PowerShell (`$PROFILE`):
 
 ```powershell
-function projects { whereami }
+function projects { wipboard }
 ```
 
 Bash or zsh:
 
 ```bash
-alias projects=whereami
+alias projects=wipboard
 ```
 
 **Claude Code SessionStart hook.** Prints the board every time a session opens, in any
@@ -53,7 +53,7 @@ project. In `~/.claude/settings.json`:
 {
   "hooks": {
     "SessionStart": [
-      { "matcher": "startup", "hooks": [{ "type": "command", "command": "whereami" }] }
+      { "matcher": "startup", "hooks": [{ "type": "command", "command": "wipboard" }] }
     ]
   }
 }

@@ -38,7 +38,7 @@ tracking each other's work, not for anything with tickets.
   cannot ("waiting on an API key", "half-migrated"). Freeform-only was considered and
   rejected: it is more honest about messy states but reduces the board to sorting by date,
   which git already does.
-- **The store lives at user level**, `~/.config/whereami/projects.json`, not in any repo.
+- **The store lives at user level**, `~/.config/wipboard/projects.json`, not in any repo.
   A tool must not write into its own install directory, and the board spans repos.
 - **The roots list lives in the store**, so there is no separate config file to go stale.
 - **Nothing runs in the background.** An early design stamped activity into the store from a
@@ -48,7 +48,7 @@ tracking each other's work, not for anything with tickets.
 ## Deferred, and why
 
 - **A web UI or hosted dashboard.** The data lives in eighteen folders on one machine. A
-  server to display it would be a second system to maintain. `whereami md` plus a pushed
+  server to display it would be a second system to maintain. `wipboard md` plus a pushed
   repo gives a phone-readable board for free. Revisit only if multi-machine becomes real.
 - **Per-project history and trend data.** Appealing and useless until there is a question it
   answers. Add when someone asks "how long does a project sit in testing".

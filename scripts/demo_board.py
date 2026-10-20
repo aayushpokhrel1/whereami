@@ -5,7 +5,7 @@ actual project list. Regenerate the image with:
 
     python scripts/demo_board.py | python scripts/board_svg.py > docs/board.svg
 
-Do NOT pipe a real `whereami` board into board_svg.py for the README: it would
+Do NOT pipe a real `wipboard` board into board_svg.py for the README: it would
 publish every project name and note on the machine that ran it.
 """
 import json
@@ -17,9 +17,9 @@ from datetime import timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-import whereami  # noqa: E402
+import wipboard  # noqa: E402
 
-NOW = whereami.utc_now()
+NOW = wipboard.utc_now()
 
 # name, days since last commit, stage, days since stage set (None = no git folder),
 # note, dirty, unpushed
@@ -74,7 +74,7 @@ def make_repo(path: Path, days: int, dirty: bool, unpushed: int) -> None:
 
 
 def main() -> int:
-    tmp = Path(tempfile.mkdtemp(prefix="whereami-demo-"))
+    tmp = Path(tempfile.mkdtemp(prefix="wipboard-demo-"))
     root = tmp / "code"
     root.mkdir()
     projects = {}
@@ -94,8 +94,8 @@ def main() -> int:
         json.dumps({"roots": [root.as_posix()], "projects": projects}, indent=2),
         encoding="utf-8",
     )
-    whereami.store_path = lambda: store
-    return whereami.main(["show"])
+    wipboard.store_path = lambda: store
+    return wipboard.main(["show"])
 
 
 if __name__ == "__main__":

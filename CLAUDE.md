@@ -1,6 +1,6 @@
 # Working in this repo
 
-`whereami` is a single-module Python CLI with no dependencies. It is small on purpose. The
+`wipboard` is a single-module Python CLI with no dependencies. It is small on purpose. The
 hardest thing about it is not the code, it is resisting the urge to add storage, a server, or
 a second source of truth.
 
@@ -41,11 +41,11 @@ file. "Update the docs" means sweep all of them.
   unpushed count are derived on every run. The store holds only `stage`, `note`,
   `stage_set_at`, and the list of roots. If you find yourself caching a derived field, you
   have just built the staleness this tool exists to prevent.
-- **No second source of truth.** `whereami md` writes a view, regenerated and never
+- **No second source of truth.** `wipboard md` writes a view, regenerated and never
   hand-edited. It is not a store.
 - **git failures are normal, not errors.** Three of the folders this was built against have
   no git at all. Every git call degrades to "no git" rather than raising.
-- **Verify with `python -m pytest`** (or `python test_whereami.py` for the self-check). The
+- **Verify with `python -m pytest`** (or `python test_wipboard.py` for the self-check). The
   drift and sort logic is the only non-trivial code here and it has to stay covered: the `!`
   flag is the entire value proposition, so a test that goes red when it breaks is worth more
   than any doc.

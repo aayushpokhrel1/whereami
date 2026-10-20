@@ -1,4 +1,4 @@
-# whereami
+# wipboard
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
@@ -14,7 +14,7 @@ field a machine cannot infer, which cycle a project is in.
 
 > **Status: pre-release.** Not yet published to PyPI. Install from source (see below).
 
-<img src="https://raw.githubusercontent.com/aayushpokhrel1/whereami/main/docs/board.svg" alt="whereami printing a board of twenty projects, each with a stage, how long ago it was last committed to, and flags for uncommitted or unpushed work" width="717">
+<img src="https://raw.githubusercontent.com/aayushpokhrel1/wipboard/main/docs/board.svg" alt="wipboard printing a board of twenty projects, each with a stage, how long ago it was last committed to, and flags for uncommitted or unpushed work" width="717">
 
 *Real output from throwaway repos, not a mockup. Regenerate with*
 *`python scripts/demo_board.py | python scripts/board_svg.py > docs/board.svg`.*
@@ -22,14 +22,14 @@ field a machine cannot infer, which cycle a project is in.
 ## Install
 
 ```bash
-uv tool install whereami        # once published
-pipx install whereami           # or this
+uv tool install wipboard        # once published
+pipx install wipboard           # or this
 ```
 
 From source:
 
 ```bash
-git clone https://github.com/aayushpokhrel1/whereami && cd whereami && uv tool install .
+git clone https://github.com/aayushpokhrel1/wipboard && cd wipboard && uv tool install .
 ```
 
 Python 3.11+. No dependencies, standard library only.
@@ -37,10 +37,10 @@ Python 3.11+. No dependencies, standard library only.
 ## Use
 
 ```bash
-whereami init ~/code            # register a folder of repos, discover them one level deep
-whereami                        # the board, stalest first
-whereami set Budgerr spec --note "waiting on an API key"
-whereami md PROJECTS.md         # write a markdown board for GitHub or your phone
+wipboard init ~/code            # register a folder of repos, discover them one level deep
+wipboard                        # the board, stalest first
+wipboard set Budgerr spec --note "waiting on an API key"
+wipboard md PROJECTS.md         # write a markdown board for GitHub or your phone
 ```
 
 Stages are fixed: `idea spec building testing shipped parked`. The freeform `--note` holds
@@ -62,10 +62,10 @@ that lies to you; this one tells you when it is lying.
 The board is only useful if you see it without choosing to. Add it to your shell profile:
 
 ```bash
-alias projects=whereami
+alias projects=wipboard
 ```
 
-Claude Code users: the repo is also a plugin, so `/whereami` reads and updates the board
+Claude Code users: the repo is also a plugin, so `/wipboard` reads and updates the board
 mid-conversation. See [docs/OPERATIONS.md](docs/OPERATIONS.md) for a `SessionStart` hook that
 prints the board every time you open a session.
 

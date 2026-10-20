@@ -1,4 +1,4 @@
-# whereami: design
+# wipboard: design
 
 **Date:** 2026-10-02
 **Status:** approved, not yet built
@@ -37,7 +37,7 @@ is no sync step and no background process.
 
 ## Store
 
-`~/.config/whereami/projects.json`, on every platform. User level, not inside any repo: the
+`~/.config/wipboard/projects.json`, on every platform. User level, not inside any repo: the
 board spans repos and a tool must not write into its own install directory.
 
 ```json
@@ -65,11 +65,11 @@ dropped, because silently losing a row is how a board loses trust.
 
 | Command | Behaviour |
 | --- | --- |
-| `whereami` | Same as `show` |
-| `whereami show` | Print the board, stalest first |
-| `whereami init [path]` | Register `path` (default: cwd) as a root, discover child folders one level deep |
-| `whereami set <project> <stage> [--note TEXT]` | Set stage, stamp `stage_set_at`, optionally set the note |
-| `whereami md <file>` | Write the board as a markdown table |
+| `wipboard` | Same as `show` |
+| `wipboard show` | Print the board, stalest first |
+| `wipboard init [path]` | Register `path` (default: cwd) as a root, discover child folders one level deep |
+| `wipboard set <project> <stage> [--note TEXT]` | Set stage, stamp `stage_set_at`, optionally set the note |
+| `wipboard md <file>` | Write the board as a markdown table |
 
 Stages, exactly: `idea spec building testing shipped parked`. An invalid stage exits non-zero
 and prints the valid list. `set` on an unknown project exits non-zero rather than creating a
@@ -118,7 +118,7 @@ covers this, and was confirmed to go red before it went green.
 
 ## Testing
 
-`test_whereami.py`, standard library plus pytest, no fixtures beyond a temp directory. It
+`test_wipboard.py`, standard library plus pytest, no fixtures beyond a temp directory. It
 builds real throwaway git repos and commits to them, because the logic under test is entirely
 about reading git.
 
@@ -134,12 +134,12 @@ Covered:
 
 ## Distribution
 
-Single module `whereami.py`, packaged with hatchling, console script `whereami`. Python 3.11+,
+Single module `wipboard.py`, packaged with hatchling, console script `wipboard`. Python 3.11+,
 standard library only, no dependencies: a one-line install for a stranger, and a tool that
 prints a table does not need a dependency tree.
 
 The repo doubles as a Claude Code plugin (`.claude-plugin/plugin.json` plus
-`commands/whereami.md`) so the board is readable and editable mid-conversation. The plugin is
+`commands/wipboard.md`) so the board is readable and editable mid-conversation. The plugin is
 a thin wrapper over the CLI and carries no logic of its own.
 
 ## Deliberately excluded
