@@ -1,5 +1,7 @@
+import { PAYLOAD_VERSION, renderBoard, renderEmpty, renderVersionMismatch } from "./render";
+import type { Board } from "./render";
+
 const MAX_BODY_BYTES = 1048576;
-const PAYLOAD_VERSION = 1;
 const BOARD_KEY = "board:current";
 
 async function digest(value: string): Promise<ArrayBuffer> {
@@ -65,12 +67,48 @@ async function ingest(request: Request, env: Env): Promise<Response> {
   return new Response(null, { status: 204 });
 }
 
+function html(body: string): Response {
+  // The charset is explicit: without it a phone guesses, and a non-ASCII name
+  // or commit subject arrives as mojibake.
+  return new Response(body, {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
+}
+
+async function dashboard(env: Env): Promise<Response> {
+  const stored = await env.BOARD.get(BOARD_KEY);
+  if (stored === null) {
+    return html(renderEmpty());
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(stored);
+  } catch {
+    return html(renderEmpty());
+  }
+
+  // A version this Worker does not know means the CLI was upgraded and the
+  // Worker was not. Say so rather than throwing or rendering half a board.
+  const version = (payload as { version?: unknown } | null)?.version;
+  if (version !== PAYLOAD_VERSION) {
+    return html(renderVersionMismatch(version));
+  }
+
+  return html(renderBoard(payload as Board, new Date()));
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === "POST" && url.pathname === "/api/board") {
       return ingest(request, env);
     }
+    if (request.method === "GET" && url.pathname === "/") {
+      return dashboard(env);
+    }
     return new Response("not found", { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
+
