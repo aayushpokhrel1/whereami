@@ -53,3 +53,18 @@ describe("POST /api/board", () => {
     expect(await env.BOARD.get("board:current")).toBeNull();
   });
 });
+
+it("refuses a body with no Content-Length", async () => {
+  // Catches the unbounded read: without the header a chunked body would be
+  // buffered whole by request.text().
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  void writer.write(new TextEncoder().encode("{}")).then(() => writer.close());
+  const response = await SELF.fetch("https://x/api/board", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${TOKEN}` },
+    body: readable,
+    duplex: "half",
+  } as RequestInit);
+  expect(response.status).toBe(411);
+});

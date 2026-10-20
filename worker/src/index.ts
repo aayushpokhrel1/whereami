@@ -24,9 +24,16 @@ function unauthorized(): Response {
 }
 
 async function ingest(request: Request, env: Env): Promise<Response> {
-  // Size first, before the body is read at all.
-  const declared = Number(request.headers.get("Content-Length") ?? "0");
-  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+  // Size first, before the body is read at all. A missing or unparseable
+  // Content-Length is refused rather than defaulted: without it a chunked body
+  // would reach request.text() unbounded, which is how a Worker runs out of
+  // memory. The pusher always sets it.
+  const header = request.headers.get("Content-Length");
+  const declared = header === null ? NaN : Number(header);
+  if (!Number.isFinite(declared)) {
+    return new Response("length required", { status: 411 });
+  }
+  if (declared > MAX_BODY_BYTES) {
     return new Response("payload too large", { status: 413 });
   }
 
