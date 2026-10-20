@@ -48,6 +48,10 @@ class Row:
     last_commit: datetime | None  # None when there is no git
     flags: list[str] = field(default_factory=list)
     has_git: bool = False
+    branch: str = ""
+    subject: str = ""
+    changed: int = 0
+    stage_set_at: datetime | None = None
 
 
 def store_path() -> Path:
@@ -122,14 +126,20 @@ def git_info(repo: Path) -> dict | None:
     """Derived git state for repo, or None when the folder is not a usable repo."""
     if not (repo / ".git").exists():
         return None
-    raw = _git(repo, "log", "-1", "--format=%cI")
+    # One log call, not two: the subject rides along on the same invocation
+    # because twenty repos times an extra process spawn is paid on every run.
+    raw = _git(repo, "log", "-1", "--format=%cI%n%s")
     if raw is None:
         return None
-    last_commit = _parse_commit_time(raw)
+    # An empty subject yields one part, not two, so the second part defaults.
+    stamp, _, subject = raw.partition("\n")
+    last_commit = _parse_commit_time(stamp)
     if last_commit is None:
         return None
     branch = _git(repo, "rev-parse", "--abbrev-ref", "HEAD") or "?"
     status = _git(repo, "status", "--porcelain")
+    # One porcelain line per changed path, so the count comes free with dirty.
+    changed = len([line for line in (status or "").splitlines() if line.strip()])
     # No upstream is the normal case for a local repo, not an error: the command
     # fails and the count is zero.
     ahead_raw = _git(repo, "rev-list", "--count", "@{u}..HEAD")
@@ -142,6 +152,8 @@ def git_info(repo: Path) -> dict | None:
         "branch": branch,
         "dirty": bool(status),
         "ahead": ahead,
+        "subject": subject,
+        "changed": changed,
     }
 
 
@@ -237,6 +249,10 @@ def build_rows(store: dict, now: datetime) -> list[Row]:
                 last_commit=info["last_commit"] if info else None,
                 flags=_flags_for(has_git, missing, stage_set_at, info, now),
                 has_git=has_git,
+                branch=info["branch"] if info else "",
+                subject=info["subject"] if info else "",
+                changed=info["changed"] if info else 0,
+                stage_set_at=stage_set_at,
             )
         )
 
@@ -260,6 +276,9 @@ def build_rows(store: dict, now: datetime) -> list[Row]:
                     last_commit=info["last_commit"] if info else None,
                     flags=_flags_for(has_git, False, None, info, now),
                     has_git=has_git,
+                    branch=info["branch"] if info else "",
+                    subject=info["subject"] if info else "",
+                    changed=info["changed"] if info else 0,
                 )
             )
 

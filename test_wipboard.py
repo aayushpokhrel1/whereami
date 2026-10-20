@@ -13,8 +13,8 @@ import pytest
 import wipboard
 
 
-def make_repo(path: Path, when: datetime | None = None) -> None:
-    """Create a git repo at path with one commit, optionally dated."""
+def make_repo(path: Path, when: datetime | None = None, message: str = "work") -> None:
+    """Create a git repo at path with one commit, optionally dated and messaged."""
     path.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ)
     if when is not None:
@@ -39,8 +39,11 @@ def make_repo(path: Path, when: datetime | None = None) -> None:
             "user.name=T",
             "commit",
             "--allow-empty",
+            # Git refuses an empty message without this, and an empty subject is
+            # exactly the case the %cI%n%s split has to survive.
+            "--allow-empty-message",
             "-m",
-            "x",
+            message,
         ],
         cwd=path,
         check=True,
@@ -187,3 +190,43 @@ def test_init_persists_the_store(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert root.resolve().as_posix() in saved["roots"]
     assert "Alpha" in saved["projects"]
     assert ".hidden" not in saved["projects"]
+
+
+def test_git_info_returns_subject_and_changed_count(tmp_path: Path) -> None:
+    """Catches a second git process per repo, and a crash on an empty subject."""
+    repo = tmp_path / "r"
+    make_repo(repo, message="Add the thing")
+    info = wipboard.git_info(repo)
+    assert info["subject"] == "Add the thing"
+    assert info["changed"] == 0
+
+
+def test_empty_commit_subject_does_not_raise(tmp_path: Path) -> None:
+    """Review Focus 2: --format=%cI%n%s yields one part when the subject is empty."""
+    repo = tmp_path / "r"
+    make_repo(repo, message="")
+    info = wipboard.git_info(repo)
+    assert info["subject"] == ""
+
+
+def test_rows_carry_stage_set_at_and_branch(tmp_path: Path) -> None:
+    """Catches build_rows dropping the fields the dashboard renders."""
+    now = wipboard.utc_now()
+    root = tmp_path / "root"
+    root.mkdir()
+    make_repo(root / "Alpha")
+    store = _store(
+        root,
+        {
+            "Alpha": {
+                "stage": "building",
+                "note": "",
+                "stage_set_at": (now - timedelta(days=2)).isoformat(),
+            },
+        },
+    )
+
+    row = {row.name: row for row in wipboard.build_rows(store, now)}["Alpha"]
+
+    assert row.branch == "main"
+    assert isinstance(row.stage_set_at, datetime)
