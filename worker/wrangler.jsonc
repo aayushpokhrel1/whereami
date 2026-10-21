@@ -3,7 +3,13 @@
   "name": "wipboard",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-20",
-  "workers_dev": true,
+  // workers_dev MUST stay false. Access cannot protect a *.workers.dev hostname,
+  // so if this were true the board would also answer, unauthenticated, at
+  // wipboard.aayus-pok.workers.dev and walk straight around the Access policy.
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "wipboard.enamelvault.com", "custom_domain": true }
+  ],
   "kv_namespaces": [
     {
       "binding": "BOARD",

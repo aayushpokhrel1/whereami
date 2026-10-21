@@ -103,28 +103,44 @@ npx wrangler secret put BOARD_TOKEN --config worker/wrangler.jsonc
 npx wrangler deploy --config worker/wrangler.jsonc
 ```
 
-Deploy prints the hostname, `wipboard.<subdomain>.workers.dev`.
+Deploy creates the DNS record for `wipboard.enamelvault.com` and prints it.
 
 ### Lock it down BEFORE pushing a real board
 
-A `workers.dev` hostname is public. Your board is a complete list of your projects with candid
-notes on each, so **configure access before the first `wipboard push`**, not after. The empty
-page is harmless; the populated one is not.
+Your board is a complete list of your projects with candid notes on each, so access control
+comes **before** the first `wipboard push`, not after. The empty page is harmless; the
+populated one is not.
 
-In the Cloudflare Zero Trust dashboard:
+**Cloudflare Access cannot protect a `*.workers.dev` hostname.** Access applications are
+defined against hostnames in a zone on your account, and `workers.dev` belongs to Cloudflare.
+This is why `wrangler.jsonc` deploys to `wipboard.enamelvault.com` and sets
+`workers_dev: false`. Leaving `workers_dev: true` would keep an unauthenticated copy of the
+board answering at `wipboard.aayus-pok.workers.dev`, straight around the policy you are about
+to write.
 
-1. Access, Applications, Add a self-hosted application for the Worker hostname.
-2. Policy: Allow, with an Emails rule naming your address.
-3. Add a second policy of type **Bypass** scoped to the path `/api/board`, with an Everyone
-   rule.
+In the Zero Trust dashboard, <https://one.dash.cloudflare.com>:
 
-Step 3 is not optional and is the easiest thing to get wrong. Access authenticates humans
-through an email round trip, which a scheduled task cannot complete, so an Access policy
-covering the whole hostname locks out your own pusher. `/api/board` is protected instead by
-the bearer token, compared in constant time in `worker/src/index.ts`.
+1. **Access, Applications, Add an application, Self-hosted.**
+2. Name `wipboard`. Session duration is how often your phone re-authenticates; a month is
+   reasonable for a board only you read.
+3. Public hostname: subdomain `wipboard`, domain `enamelvault.com`, path empty.
+4. Policy: name it, Action **Allow**, Include **Emails**, your address. Save.
+5. **Add a second application** for the same hostname with path `api/board`, and give it one
+   policy with Action **Bypass** and Include **Everyone**.
 
-Confirm both halves before trusting it: opening the hostname in a private window should
-demand a login, and `wipboard push` should still succeed.
+Step 5 is not optional and is the easiest thing to get wrong. Access authenticates humans
+through an email round trip, which a scheduled task cannot complete, so an application
+covering the whole hostname locks out your own pusher. Access matches the most specific path
+first, so the `api/board` application wins there. That path is protected by the bearer token
+instead, compared in constant time in `worker/src/index.ts`.
+
+Confirm both halves before trusting it:
+
+```bash
+curl -sI https://wipboard.enamelvault.com/ | head -1
+```
+
+That should be a redirect to a login, not a 200. And `wipboard push` must still succeed.
 
 ### Point the CLI at it
 
@@ -132,7 +148,7 @@ demand a login, and `wipboard push` should still succeed.
 
 ```json
 {
-  "endpoint": "https://wipboard.<subdomain>.workers.dev/api/board",
+  "endpoint": "https://wipboard.enamelvault.com/api/board",
   "token": "the same value you gave wrangler secret put"
 }
 ```

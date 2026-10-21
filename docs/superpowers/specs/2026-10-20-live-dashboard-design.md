@@ -203,7 +203,12 @@ The KV namespace is created once with `wrangler kv namespace create`, and the Ac
 application and its bypass policy are configured once in the Zero Trust dashboard. All of it
 is written down in `docs/OPERATIONS.md`, including how to rotate `BOARD_TOKEN`.
 
-The hostname is `wipboard.<subdomain>.workers.dev`. No custom domain.
+**Corrected 2026-10-21:** the hostname is `wipboard.enamelvault.com`, not workers.dev, and
+`workers_dev` is false. Cloudflare Access is defined against hostnames in a zone on the
+account, and `workers.dev` is Cloudflare's zone, so Access cannot protect it. This document
+originally specified workers.dev plus Access, which is not a combination that exists. Leaving
+`workers_dev: true` alongside a custom domain would also leave an unauthenticated copy of the
+board answering on the workers.dev hostname.
 
 ## Deliberately excluded
 
