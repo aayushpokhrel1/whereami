@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
-![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)
+![CLI dependencies: none](https://img.shields.io/badge/CLI%20dependencies-0-brightgreen.svg)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-6E56CF.svg)](#use)
 
 **A board for the repos you forgot about.**
@@ -32,7 +32,8 @@ From source:
 git clone https://github.com/aayushpokhrel1/wipboard && cd wipboard && uv tool install .
 ```
 
-Python 3.11+. No dependencies, standard library only.
+Python 3.11+. The CLI has no dependencies, standard library only. (The optional Worker in
+`worker/` has its own dev dependencies; nothing you install to run `wipboard` does.)
 
 ## Use
 
@@ -57,6 +58,24 @@ the messy truth that a stage name cannot.
 The `!` flag is the point of the tool. A board you have to remember to update is a board
 that lies to you; this one tells you when it is lying.
 
+## Read it from your phone
+
+The board is a terminal tool, and a terminal is not on your phone. `worker/` is an optional
+Cloudflare Worker that gives you the same board as a web page:
+
+```bash
+wipboard push          # sends the current board to your Worker
+```
+
+Push from your `post-commit` hook and it updates on every commit in any repo. Deployment,
+the token, and access control are in [docs/OPERATIONS.md](docs/OPERATIONS.md). Nothing in the
+CLI needs it, and nothing is sent anywhere until you configure an endpoint.
+
+**It is a snapshot, deliberately.** A Worker cannot read your machine, so the page shows the
+last board you pushed. That is the one way this tool can lie to you, so the page leads with
+its own age: normal under an hour, amber over an hour, and over a day it says plainly that
+the machine has probably been off. Treat it as a report you refresh, not a live view.
+
 ## Make it unavoidable
 
 The board is only useful if you see it without choosing to. Add it to your shell profile:
@@ -75,7 +94,8 @@ prints the board every time you open a session.
 | --- | --- |
 | `README.md` | This file: what it is, install, usage |
 | `PRODUCT.md` | Who it is for, decisions, what is deferred and why |
-| `docs/OPERATIONS.md` | Run, verify, release, hook setup, environment traps |
+| `docs/OPERATIONS.md` | Run, verify, release, deploy the dashboard, hook setup, traps |
+| `worker/` | The optional Cloudflare Worker behind the phone dashboard |
 | `docs/superpowers/specs/` | The design of one feature, written before building it |
 | `CLAUDE.md` | How to work in this repo |
 

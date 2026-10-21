@@ -22,3 +22,23 @@ jobs:
           git config --global user.name CI
       - run: pip install pytest
       - run: python -m pytest -q
+
+  worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install
+        working-directory: worker
+        run: npm ci
+      - name: BOARD_TOKEN for the local runtime
+        # Not a secret. wrangler types and miniflare read .dev.vars, which is
+        # gitignored, so CI has to recreate it or the suite cannot type-check.
+        # It must match the value the tests send.
+        working-directory: worker
+        run: echo "BOARD_TOKEN=local-dev-token-not-a-real-secret" > .dev.vars
+      - name: Test
+        working-directory: worker
+        run: npx vitest run

@@ -10,7 +10,8 @@ a second source of truth.
 | --- | --- |
 | `README.md` | What it is, install, usage, the flags. The public face |
 | `PRODUCT.md` | Who it is for, decisions, what is deferred **and why** |
-| `docs/OPERATIONS.md` | Run, verify, release to PyPI, hook setup, environment traps |
+| `docs/OPERATIONS.md` | Run, verify, release to PyPI, deploy the Worker, hook setup, environment traps |
+| `worker/` | The optional dashboard Worker. Its own tests live in `worker/test/` |
 | a **code comment at the site** | A rule about specific code (a git invocation that must stay quiet on a non-repo, a date format the store depends on) |
 | the **Obsidian vault** | A lesson that would change how I work on a *different* project |
 | `docs/superpowers/specs/` | The design of one feature, written before building it. Tracked: a spec explains why the code is shaped as it is |
@@ -43,9 +44,20 @@ file. "Update the docs" means sweep all of them.
   have just built the staleness this tool exists to prevent.
 - **No second source of truth.** `wipboard md` writes a view, regenerated and never
   hand-edited. It is not a store.
+- **The Worker holds no git knowledge.** It stores and renders whatever payload it is handed,
+  and must never learn what a stage means or how a flag is computed. The payload shape is
+  owned by `board_payload` in `wipboard.py`; if the Worker starts deriving anything, there are
+  two implementations of the board to keep in step and they will drift.
+- **Everything the Worker interpolates into HTML goes through `escapeHtml`.** Project names
+  and notes are arbitrary user text rendered in a browser. There is no exception to this, and
+  a test covers it with a project literally named `<script>alert(1)</script>`.
+- **The dashboard is a snapshot and must keep saying so.** The page leads with its own age
+  because a stale board that looks current is precisely the failure this project exists to
+  prevent. Do not quietly drop that header to tidy the layout.
 - **git failures are normal, not errors.** Three of the folders this was built against have
   no git at all. Every git call degrades to "no git" rather than raising.
-- **Verify with `python -m pytest`** (or `python test_wipboard.py` for the self-check). The
+- **Verify with `python -m pytest`**, which needs pytest; running the test file directly
+  executes nothing and exits 0. The
   drift and sort logic is the only non-trivial code here and it has to stay covered: the `!`
   flag is the entire value proposition, so a test that goes red when it breaks is worth more
   than any doc.
