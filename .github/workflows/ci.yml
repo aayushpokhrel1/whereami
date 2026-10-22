@@ -33,12 +33,14 @@ jobs:
       - name: Install
         working-directory: worker
         run: npm ci
-      - name: BOARD_TOKEN for the local runtime
+      - name: Secrets for the local runtime
         # Not a secret. wrangler types and miniflare read .dev.vars, which is
         # gitignored, so CI has to recreate it or the suite cannot type-check.
         # It must match the value the tests send.
         working-directory: worker
-        run: echo "BOARD_TOKEN=local-dev-token-not-a-real-secret" > .dev.vars
+        run: |
+          echo "BOARD_TOKEN=local-dev-token-not-a-real-secret" > .dev.vars
+          echo "VIEW_TOKEN=view-token-for-tests" >> .dev.vars
       - name: Test
         working-directory: worker
-        run: npx vitest run
+        run: npm test   # tsc --noEmit && vitest run

@@ -3,6 +3,8 @@ import type { Board } from "./render";
 
 const MAX_BODY_BYTES = 1048576;
 const BOARD_KEY = "board:current";
+const VIEW_COOKIE = "wipboard_view";
+const VIEW_MAX_AGE = 60 * 60 * 24 * 365;
 
 async function digest(value: string): Promise<ArrayBuffer> {
   return crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
@@ -23,6 +25,65 @@ function bearerToken(request: Request): string {
 
 function unauthorized(): Response {
   return new Response("unauthorized", { status: 401 });
+}
+
+// Only the exact string "access" turns the Worker's own check off. Anything
+// else, including an absent var, means token mode. The open mode has to be
+// opted into by name: a typo or a stripped var must never publish the board.
+function usesAccess(env: Env): boolean {
+  // Widened on purpose: wrangler types AUTH_MODE as the literal in
+  // wrangler.jsonc, which makes a comparison against any other value look like
+  // dead code to tsc even though the deployed var can be anything.
+  const mode: string = env.AUTH_MODE ?? "";
+  return mode === "access";
+}
+
+function cookieValue(request: Request, name: string): string {
+  const header = request.headers.get("Cookie") ?? "";
+  for (const part of header.split(";")) {
+    const [k, ...rest] = part.trim().split("=");
+    if (k === name) return rest.join("=");
+  }
+  return "";
+}
+
+/** Exchange ?k=<token> for a cookie, then redirect away from the URL carrying it. */
+async function login(request: Request, env: Env): Promise<Response> {
+  const expected = env.VIEW_TOKEN ?? "";
+  if (!expected) return viewUnconfigured();
+  const presented = new URL(request.url).searchParams.get("k") ?? "";
+  if (!(await tokenMatches(presented, expected))) return unauthorized();
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+      // The redirect is immediate so the token does not stay in the address
+      // bar. It is still in browser history: documented, not solved.
+      "Set-Cookie":
+        `${VIEW_COOKIE}=${encodeURIComponent(expected)}; Path=/; Max-Age=${VIEW_MAX_AGE}; ` +
+        "HttpOnly; Secure; SameSite=Lax",
+    },
+  });
+}
+
+function viewUnconfigured(): Response {
+  // Fail closed. Serving the board because configuration is missing is how a
+  // private project list ends up indexed.
+  return new Response(
+    "wipboard is in token mode but VIEW_TOKEN is not set, so it will not serve the " +
+      "board. Set it with `wrangler secret put VIEW_TOKEN`, or deploy with " +
+      "AUTH_MODE=access if something upstream already authenticates viewers.",
+    { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } },
+  );
+}
+
+/** Whether this request may see the board. */
+async function mayView(request: Request, env: Env): Promise<Response | null> {
+  if (usesAccess(env)) return null;
+  const expected = env.VIEW_TOKEN ?? "";
+  if (!expected) return viewUnconfigured();
+  const presented = decodeURIComponent(cookieValue(request, VIEW_COOKIE));
+  return (await tokenMatches(presented, expected)) ? null : unauthorized();
 }
 
 async function ingest(request: Request, env: Env): Promise<Response> {
@@ -105,8 +166,12 @@ export default {
     if (request.method === "POST" && url.pathname === "/api/board") {
       return ingest(request, env);
     }
+    if (request.method === "GET" && url.pathname === "/login" && !usesAccess(env)) {
+      return login(request, env);
+    }
     if (request.method === "GET" && url.pathname === "/") {
-      return dashboard(env);
+      const refusal = await mayView(request, env);
+      return refusal ?? dashboard(env);
     }
     return new Response("not found", { status: 404 });
   },

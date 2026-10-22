@@ -71,6 +71,25 @@ Push from your `post-commit` hook and it updates on every commit in any repo. De
 the token, and access control are in [docs/OPERATIONS.md](docs/OPERATIONS.md). Nothing in the
 CLI needs it, and nothing is sent anywhere until you configure an endpoint.
 
+**Two ways to keep it private.** The board is your whole project list, so the Worker refuses
+to serve it until one of them is configured.
+
+- `AUTH_MODE: "token"`, the default. The Worker guards the board itself. Set a `VIEW_TOKEN`
+  secret, open `https://your-worker/login?k=<token>` once on each device, and a hardened
+  cookie does the rest. Works on a free `workers.dev` subdomain with no domain of your own.
+- `AUTH_MODE: "access"`. The Worker checks nothing and trusts whatever is in front of it,
+  which must actually be there. Cloudflare Access gives you real identity, MFA and an audit
+  log, but it only protects hostnames in a zone you own, so this path needs a domain.
+
+If `AUTH_MODE` is anything other than the exact string `access`, token mode applies, and if
+`VIEW_TOKEN` is unset the board returns 503 rather than rendering. A missing or misspelled
+variable locks the board; it never publishes it.
+
+Token mode is deliberately modest: no sessions, no per-device revocation, no MFA, and
+rotating `VIEW_TOKEN` signs out every device at once. The login URL carries the token, so it
+lands in browser history even though you are redirected away from it immediately. If you want
+more than that, use Access.
+
 **It is a snapshot, deliberately.** A Worker cannot read your machine, so the page shows the
 last board you pushed. That is the one way this tool can lie to you, so the page leads with
 its own age: normal under an hour, amber over an hour, and over a day it says plainly that

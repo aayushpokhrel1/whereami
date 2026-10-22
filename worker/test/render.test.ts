@@ -1,4 +1,8 @@
 import { env, SELF } from "cloudflare:test";
+
+// The Worker runs in token mode under .dev.vars, so these GET / tests have to
+// authenticate like a browser would. They predate the view auth.
+const VIEW_COOKIE = { Cookie: "wipboard_view=view-token-for-tests" };
 import { describe, expect, it } from "vitest";
 import { renderBoard, type Board } from "../src/render";
 
@@ -146,7 +150,7 @@ describe("GET /", () => {
       "board:current",
       JSON.stringify({ ...board(), version: 99 }),
     );
-    const res = await SELF.fetch("https://example.com/");
+    const res = await SELF.fetch("https://example.com/", { headers: VIEW_COOKIE });
     expect(res.status).toBe(200);
     const html = await res.text();
     expect(html).toContain("older than the CLI");
@@ -165,7 +169,7 @@ describe("GET /", () => {
         }),
       ),
     );
-    const res = await SELF.fetch("https://example.com/");
+    const res = await SELF.fetch("https://example.com/", { headers: VIEW_COOKIE });
     expect(res.headers.get("Content-Type")).toBe("text/html; charset=utf-8");
     const html = await res.text();
     expect(html).toContain("café");
@@ -173,7 +177,7 @@ describe("GET /", () => {
   });
 
   it("renders the empty state when KV is empty", async () => {
-    const res = await SELF.fetch("https://example.com/");
+    const res = await SELF.fetch("https://example.com/", { headers: VIEW_COOKIE });
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toBe("text/html; charset=utf-8");
     const html = await res.text();

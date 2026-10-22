@@ -189,6 +189,34 @@ None of this is installed for you. A tool that edits a stranger's git hooks or s
 on install would be a bad citizen, which is the same reason the `SessionStart` hook lives in
 your Claude settings and not in this repo.
 
+### The two auth modes
+
+`AUTH_MODE` decides who guards the board, and the Worker refuses to serve it until one of
+them is configured.
+
+| Mode | Who authenticates | Needs |
+| --- | --- | --- |
+| `token` (default) | The Worker, via a `VIEW_TOKEN` cookie | nothing but a secret |
+| `access` | Cloudflare Access, upstream | a domain in a zone you own |
+
+Only the exact string `access` turns the Worker's own check off. A typo, a stripped var or a
+missing one all mean token mode, so a misconfiguration locks the board rather than publishing
+it. In token mode with no `VIEW_TOKEN` set, `GET /` returns 503 naming the fix.
+
+For token mode, set the secret and visit the login URL once per device:
+
+```bash
+npx wrangler secret put VIEW_TOKEN
+```
+
+Then open `https://<your-worker>/login?k=<token>`. It sets an HttpOnly, Secure, SameSite=Lax
+cookie good for a year and redirects to `/`, so the token does not sit in the address bar. It
+is still in browser history: that is a known limitation, not an oversight.
+
+Token mode has no sessions, no per-device revocation and no MFA, and rotating `VIEW_TOKEN`
+signs out every device at once. It exists so the Worker is useful to someone without a domain.
+If you have a domain, `access` is strictly better.
+
 ### Rotating BOARD_TOKEN
 
 The naive order leaves a window where every push fails. There is no two-token support in the
