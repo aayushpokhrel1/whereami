@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # So a run can be triggered by hand when a push trigger does not fire.
+  workflow_dispatch:
 
 jobs:
   test:
