@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import subprocess
 from datetime import datetime, timedelta
+import codecs
 import json
 from pathlib import Path
 
@@ -289,3 +290,59 @@ def test_env_overrides_config_file(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv("WIPBOARD_ENDPOINT", "https://e.example/api/board")
     monkeypatch.setenv("WIPBOARD_TOKEN", "t")
     assert wipboard.push_config() == ("https://e.example/api/board", "t")
+
+
+def test_config_with_a_utf8_bom_is_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Catches a BOM making a valid config look absent.
+
+    PowerShell's Set-Content -Encoding utf8 writes one, so this is the normal
+    way the file gets created on Windows, not an exotic case.
+    """
+    cfg = tmp_path / "config.json"
+    cfg.write_bytes(
+        codecs.BOM_UTF8 + json.dumps({"endpoint": "https://e/api", "token": "t"}).encode()
+    )
+    monkeypatch.setattr(wipboard, "config_path", lambda: cfg)
+    monkeypatch.delenv("WIPBOARD_ENDPOINT", raising=False)
+    monkeypatch.delenv("WIPBOARD_TOKEN", raising=False)
+    assert wipboard.push_config() == ("https://e/api", "t")
+
+
+def test_unreadable_config_reports_itself(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Catches a broken config being reported as a missing key."""
+    cfg = tmp_path / "config.json"
+    cfg.write_text("{not json", encoding="utf-8")
+    monkeypatch.setattr(wipboard, "config_path", lambda: cfg)
+    monkeypatch.delenv("WIPBOARD_ENDPOINT", raising=False)
+    monkeypatch.delenv("WIPBOARD_TOKEN", raising=False)
+    with pytest.raises(wipboard.ConfigError, match="Cannot read"):
+        wipboard.push_config()
+
+
+def test_post_sends_a_descriptive_user_agent(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Catches the push falling back to urllib's default agent.
+
+    Cloudflare's browser integrity check bans Python-urllib by signature and
+    returns 403 error 1010 from the edge, so the bearer token never gets looked
+    at and the failure looks like an auth problem instead of a user-agent one.
+    """
+    seen: dict[str, str] = {}
+
+    class _Response:
+        status = 204
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def fake_urlopen(request, timeout=None):
+        seen.update(request.headers)
+        return _Response()
+
+    monkeypatch.setattr(wipboard.urllib.request, "urlopen", fake_urlopen)
+    assert wipboard._post("https://e/api", "t", b"{}") == 204
+    agent = seen.get("User-agent", "")
+    assert agent.startswith("wipboard/")
+    assert "Python-urllib" not in agent

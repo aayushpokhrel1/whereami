@@ -51,6 +51,11 @@ class ConfigError(Exception):
 # The push is the only part of the tool that makes a network call, so it is the
 # only part that can hang. Ten seconds, then treat it as an ordinary failure.
 PUSH_TIMEOUT = 10
+# urllib's default User-Agent is "Python-urllib/3.x", which Cloudflare's browser
+# integrity check bans outright: the push comes back 403 with error code 1010,
+# from the edge, before the Worker ever sees the bearer token. Any descriptive
+# agent passes. Do not remove this and do not let it fall back to the default.
+USER_AGENT = "wipboard/0.1.0 (+https://github.com/aayushpokhrel1/wipboard)"
 
 # The config file is user level, next to the store, and holds a bearer token.
 CONFIG_RELATIVE = (".config", "wipboard", "config.json")
@@ -479,19 +484,26 @@ def config_path() -> Path:
 
 
 def _config_file() -> dict:
-    """Read the config file, or an empty dict when it is absent or unreadable.
+    """Read the config file, or an empty dict when it is absent.
 
-    A broken config file is not a crash: the caller reports the missing key and
-    how to set it, which is the same message a missing file produces.
+    A file that exists but cannot be read is an error, not an absence. Treating
+    the two alike produced "Missing endpoint, token" about a file containing
+    both, which sends you looking in the wrong place entirely.
+
+    utf-8-sig, not utf-8: PowerShell's `Set-Content -Encoding utf8` writes a BOM
+    on Windows, and json.loads rejects it. That is the most likely way this file
+    gets written on the platform this tool is used on most.
     """
     path = config_path()
     if not path.exists():
         return {}
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return {}
-    return data if isinstance(data, dict) else {}
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError) as exc:
+        raise ConfigError(f"Cannot read {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ConfigError(f"{path} does not contain a JSON object.")
+    return data
 
 
 def push_config() -> tuple[str, str]:
@@ -531,6 +543,7 @@ def _post(url: str, token: str, body: bytes) -> int:
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
         },
     )
     with urllib.request.urlopen(request, timeout=PUSH_TIMEOUT) as response:

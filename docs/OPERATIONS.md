@@ -257,3 +257,19 @@ board, since every push is a full snapshot rather than a delta.
 - **npm blocks postinstall scripts by default here.** A fresh `npm install` in `worker/`
   leaves `workerd` and `esbuild` without their binaries, and every test fails confusingly.
   Run `npm install-scripts approve workerd esbuild` once, then install again.
+- **Cloudflare bans `Python-urllib` by signature.** A push with urllib's default User-Agent
+  comes back `403` with `error code: 1010` from the edge, before the Worker sees the bearer
+  token, so it reads as an auth failure when it is nothing of the kind. `wipboard.py` sets a
+  descriptive `USER_AGENT` for exactly this reason; a test pins it.
+- **Do not pipe a secret into `wrangler secret put` from PowerShell.** The pipeline appends a
+  line ending and the stored value stops matching what you wrote down, which surfaces as a
+  `401` on every push with no hint why. Either type it at the prompt, or use
+  `wrangler secret bulk <file.json>` with a file written as UTF-8 **without a BOM**.
+- **PowerShell's `Set-Content -Encoding utf8` writes a BOM.** `config.json` written that way
+  used to read as absent, so the CLI reported "Missing endpoint, token" about a file that
+  contained both. The config loader now reads `utf-8-sig` and reports an unreadable file
+  instead of silently treating it as missing, but prefer
+  `[System.IO.File]::WriteAllText($p, $json, (New-Object System.Text.UTF8Encoding $false))`.
+- **`uv tool install` copies the module, it does not link it.** After changing `wipboard.py`,
+  run `uv tool install . --force` or the installed `wipboard` keeps running the old code. A
+  new subcommand appearing as "invalid choice" is this, every time.
