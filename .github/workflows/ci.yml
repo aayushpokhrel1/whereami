@@ -41,6 +41,13 @@ jobs:
         run: |
           echo "BOARD_TOKEN=local-dev-token-not-a-real-secret" > .dev.vars
           echo "VIEW_TOKEN=view-token-for-tests" >> .dev.vars
+      - name: Generate binding types
+        # worker-configuration.d.ts is generated, so it is gitignored and a
+        # fresh clone has no Env, Request or crypto types at all. Without this
+        # step tsc fails on every line of the Worker.
+        working-directory: worker
+        run: npx wrangler types
+
       - name: Test
         working-directory: worker
         run: npm test   # tsc --noEmit && vitest run
