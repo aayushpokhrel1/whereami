@@ -374,3 +374,33 @@ def test_documented_test_counts_match_reality() -> None:
     assert stated_worker == actual_worker, (
         f"OPERATIONS.md says {stated_worker} Worker tests, there are {actual_worker}"
     )
+
+
+def test_handover_stays_a_current_state_note() -> None:
+    """Catches HANDOVER.md turning from a current-state note into a log.
+
+    The same file on a sibling project (FamilyRecipes) reached 1,365 lines by
+    accumulating everything, began contradicting itself, and a session then acted
+    on a superseded line and re-proposed a change that same file recorded as
+    already tried and rejected. A doc asking for brevity does not get it.
+
+    When this fails, MOVE the content to its home (README / PRODUCT /
+    docs/OPERATIONS / the vault). Never raise MAX_LINES.
+
+    HANDOVER.md is gitignored, so it is absent on a fresh clone and in CI, and
+    the test must pass when it is.
+    """
+    import re
+
+    max_lines = 200
+    handover = Path(__file__).resolve().parent / "HANDOVER.md"
+    if not handover.exists():
+        return
+
+    lines = handover.read_text(encoding="utf-8").splitlines()
+    assert len(lines) <= max_lines, (
+        f"HANDOVER.md is {len(lines)} lines (max {max_lines}); move content to its home"
+    )
+
+    dated = [l for l in lines if re.match(r"^#{1,4} .*\d{4}-\d{2}-\d{2}", l)]
+    assert not dated, f"dated headings belong in git log, not the handover: {dated}"
