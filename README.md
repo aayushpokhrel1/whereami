@@ -14,7 +14,7 @@ field a machine cannot infer, which cycle a project is in.
 
 > **Status: pre-release.** Not yet published to PyPI. Install from source (see below).
 
-<img src="https://raw.githubusercontent.com/aayushpokhrel1/wipboard/main/docs/board.svg" alt="wipboard printing a board of twenty projects, each with a stage, how long ago it was last committed to, and flags for uncommitted or unpushed work" width="717">
+<img src="https://raw.githubusercontent.com/aayushpokhrel1/wipboard/main/docs/board.svg" alt="wipboard printing a board of eight projects, each with a stage, how long ago it was last committed to, and flags for suspect, stuck, uncommitted and unpushed work" width="717">
 
 *Real output from throwaway repos, not a mockup. Regenerate with*
 *`python scripts/demo_board.py | python scripts/board_svg.py > docs/board.svg`.*

@@ -11,7 +11,7 @@ wipboard                      # then this works anywhere
 ## Verify
 
 ```bash
-python -m pytest              # 12 tests, the whole suite
+python -m pytest              # 16 tests, the whole suite
 ```
 
 **pytest is required.** `python test_wipboard.py` runs nothing and exits 0, because the tests
@@ -77,11 +77,13 @@ as a web page. The CLI does not need it and sends nothing anywhere until `endpoi
 npm --prefix worker test
 ```
 
-17 tests, run in the real Workers runtime via `@cloudflare/vitest-pool-workers`, not a mock.
+25 tests plus `tsc --noEmit`, run in the real Workers runtime via
+`@cloudflare/vitest-pool-workers`, not a mock.
 
 ### First deploy
 
-**These steps have not been run end to end yet.** Correct them the first time you do.
+Run from `worker/`. **These steps were run end to end on 2026-10-22** and the commands below
+are the ones that actually worked, not the ones first written down.
 
 ```bash
 npx wrangler login
@@ -97,13 +99,29 @@ npx wrangler kv namespace create BOARD
 Generate a token and set it as a secret. Use a real random value, not a memorable one: it is
 the only thing standing between the internet and your board.
 
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-npx wrangler secret put BOARD_TOKEN --config worker/wrangler.jsonc
-npx wrangler deploy --config worker/wrangler.jsonc
+Generate a token, then set it **with `secret bulk`, not `secret put`**. Piping a value into
+`secret put` from PowerShell appends a line ending, and the stored secret silently stops
+matching what you wrote down; that cost an hour of 401s on the first deploy.
+
+```powershell
+$t = python -c "import secrets; print(secrets.token_urlsafe(32))"
+$enc = New-Object System.Text.UTF8Encoding $false
+$tmp = Join-Path $env:TEMP 'wb-secrets.json'
+[System.IO.File]::WriteAllText($tmp, (@{ BOARD_TOKEN = $t } | ConvertTo-Json -Compress), $enc)
+npx wrangler secret bulk $tmp
+Remove-Item $tmp -Force
 ```
 
-Deploy creates the DNS record for `wipboard.enamelvault.com` and prints it.
+Then deploy:
+
+```bash
+npx wrangler deploy
+```
+
+No `--var` flag: this deployment runs in **token mode** with Access in front, which is the
+tracked default, so there is nothing to override and nothing to forget on a later deploy. Set
+`VIEW_TOKEN` the same way as above. Deploy creates the DNS record for
+`wipboard.enamelvault.com` and prints it.
 
 ### Lock it down BEFORE pushing a real board
 
@@ -136,11 +154,20 @@ instead, compared in constant time in `worker/src/index.ts`.
 
 Confirm both halves before trusting it:
 
-```bash
-curl -sI https://wipboard.enamelvault.com/ | head -1
+```powershell
+curl.exe -sI https://wipboard.enamelvault.com/ | Select-Object -First 1
 ```
 
-That should be a redirect to a login, not a 200. And `wipboard push` must still succeed.
+**`curl.exe`, not `curl`.** In PowerShell the bare name is an alias for `Invoke-WebRequest`,
+which rejects curl's flags with a misleading "Missing an argument for parameter
+'SessionVariable'". Use `NUL`, not `/dev/null`, for the same reason.
+
+That should be a `302` to a login, not a `200`. And `wipboard push` must still succeed: it is
+the Bypass policy on `api/board` that keeps it working.
+
+Verified on 2026-10-26: `GET /` returns 302, `POST /api/board` without a token returns 401
+from the Worker rather than a login redirect, and `wipboard.aayus-pok.workers.dev` returns
+404, so `workers_dev: false` is holding.
 
 ### Point the CLI at it
 
@@ -231,7 +258,7 @@ board, since every push is a full snapshot rather than a delta.
 
 ## Environment traps
 
-- **Not every folder is a repo.** Three of the eighteen folders this was built against have
+- **Not every folder is a repo.** Four of the twenty folders this is used against have
   no `.git`. Every git call has to degrade to "no git" rather than raising, and the test
   suite covers that case specifically.
 - **`git` must be on PATH.** There is no bundled fallback. If it is missing, every project

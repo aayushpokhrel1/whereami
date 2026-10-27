@@ -44,20 +44,16 @@ file. "Update the docs" means sweep all of them.
   have just built the staleness this tool exists to prevent.
 - **No second source of truth.** `wipboard md` writes a view, regenerated and never
   hand-edited. It is not a store.
-- **The Worker holds no git knowledge.** It stores and renders whatever payload it is handed,
-  and must never learn what a stage means or how a flag is computed. The payload shape is
-  owned by `board_payload` in `wipboard.py`; if the Worker starts deriving anything, there are
-  two implementations of the board to keep in step and they will drift.
-- **Everything the Worker interpolates into HTML goes through `escapeHtml`.** Project names
-  and notes are arbitrary user text rendered in a browser. There is no exception to this, and
-  a test covers it with a project literally named `<script>alert(1)</script>`.
-- **The dashboard is a snapshot and must keep saying so.** The page leads with its own age
-  because a stale board that looks current is precisely the failure this project exists to
-  prevent. Do not quietly drop that header to tidy the layout.
+- **The three rules about Worker code live as comments at that code**, not here: the payload
+  shape is owned by `board_payload` (`wipboard.py`), every interpolated value goes through
+  `escapeHtml` (`worker/src/render.ts`), and the snapshot age header is load-bearing
+  (`snapshotAge`, same file). They were restated here until 2026-10-26, which made this file a
+  third copy of each. You cannot edit those functions without reading the comment; nobody
+  re-reads this list.
 - **git failures are normal, not errors.** Three of the folders this was built against have
   no git at all. Every git call degrades to "no git" rather than raising.
-- **Verify with `python -m pytest`**, which needs pytest; running the test file directly
-  executes nothing and exits 0. The
+- **Verify with `python -m pytest`** (16 tests) and `npm --prefix worker test` (25, plus
+  `tsc`). pytest is required; running the test file directly executes nothing and exits 0. The
   drift and sort logic is the only non-trivial code here and it has to stay covered: the `!`
   flag is the entire value proposition, so a test that goes red when it breaks is worth more
   than any doc.

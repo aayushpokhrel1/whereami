@@ -346,3 +346,31 @@ def test_post_sends_a_descriptive_user_agent(monkeypatch: pytest.MonkeyPatch) ->
     agent = seen.get("User-agent", "")
     assert agent.startswith("wipboard/")
     assert "Python-urllib" not in agent
+
+
+def test_documented_test_counts_match_reality() -> None:
+    """Catches the docs stating a test count that stopped being true.
+
+    Every sweep of this repo has found a stale count in docs/OPERATIONS.md: it
+    said 12 Python tests when there were 15, and 17 Worker tests when there were
+    25. A number in prose rots silently because nothing recounts it. This recounts
+    it. If it fails, fix the document rather than the number here.
+    """
+    import re
+
+    root = Path(__file__).resolve().parent
+    ops = (root / "docs" / "OPERATIONS.md").read_text(encoding="utf-8")
+
+    actual_py = len(re.findall(r"^def test_", (root / "test_wipboard.py").read_text(encoding="utf-8"), re.M))
+    stated_py = int(re.search(r"# (\d+) tests, the whole suite", ops).group(1))
+    assert stated_py == actual_py, f"OPERATIONS.md says {stated_py} Python tests, there are {actual_py}"
+
+    worker_tests = sorted((root / "worker" / "test").glob("*.test.ts"))
+    assert worker_tests, "no Worker tests found; the glob or the layout changed"
+    actual_worker = sum(
+        len(re.findall(r"^\s*it\(", f.read_text(encoding="utf-8"), re.M)) for f in worker_tests
+    )
+    stated_worker = int(re.search(r"^(\d+) tests plus `tsc", ops, re.M).group(1))
+    assert stated_worker == actual_worker, (
+        f"OPERATIONS.md says {stated_worker} Worker tests, there are {actual_worker}"
+    )
