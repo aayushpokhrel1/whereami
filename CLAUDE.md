@@ -4,6 +4,18 @@
 hardest thing about it is not the code, it is resisting the urge to add storage, a server, or
 a second source of truth.
 
+## graphify
+
+There is a knowledge graph at `graphify-out/graph.json` (gitignored, rebuilt by the
+user-global post-commit hook). For a codebase question, run `graphify query "<question>"`
+first, `graphify path "<A>" "<B>"` for a relationship, `graphify explain "<concept>"` for one
+concept. Each returns a scoped subgraph, far smaller than grepping the source.
+
+**There is no `GRAPH_REPORT.md` here**, unlike the sibling projects: `graphify .` writes the
+graph but not the report, which needs a separate `graphify cluster-only .` and another model
+call. Do not send a reader to a file that was never generated. The graph itself is enough for
+query/path/explain, which is all this repo's size warrants.
+
 ## Where things are written down
 
 | Write it in | When it is |
