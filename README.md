@@ -113,6 +113,7 @@ prints the board every time you open a session.
 | --- | --- |
 | `README.md` | This file: what it is, install, usage |
 | `PRODUCT.md` | Who it is for, decisions, what is deferred and why |
+| `DESIGN.md` | The dashboard's visual system. The CLI's table is not covered; its rules live in the code |
 | `docs/OPERATIONS.md` | Run, verify, release, deploy the dashboard, hook setup, traps |
 | `worker/` | The optional Cloudflare Worker behind the phone dashboard |
 | `docs/superpowers/specs/` | The design of one feature, written before building it |

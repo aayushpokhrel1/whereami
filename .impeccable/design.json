@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T00:00:00Z",
+  "title": "Design System: wipboard",
+  "extensions": {
+    "colorMeta": {
+      "alarm": {
+        "role": "primary",
+        "displayName": "Alarm Red",
+        "canonical": "#b42318",
+        "darkCounterpart": "alarm-dark",
+        "tonalRamp": [
+          "oklch(20% 0.09 27)",
+          "oklch(30% 0.13 27)",
+          "oklch(40% 0.16 27)",
+          "oklch(50% 0.18 27)",
+          "oklch(60% 0.17 27)",
+          "oklch(72% 0.14 27)",
+          "oklch(85% 0.08 27)",
+          "oklch(95% 0.03 27)"
+        ]
+      },
+      "fresh": {
+        "role": "secondary",
+        "displayName": "Fresh Green",
+        "canonical": "#1a7f37",
+        "darkCounterpart": "fresh-dark",
+        "tonalRamp": [
+          "oklch(20% 0.07 148)",
+          "oklch(30% 0.10 148)",
+          "oklch(40% 0.12 148)",
+          "oklch(50% 0.14 148)",
+          "oklch(62% 0.16 148)",
+          "oklch(74% 0.13 148)",
+          "oklch(86% 0.08 148)",
+          "oklch(95% 0.03 148)"
+        ]
+      },
+      "warn": {
+        "role": "tertiary",
+        "displayName": "Amber Warn",
+        "canonical": "#9a6700",
+        "darkCounterpart": "warn-dark",
+        "tonalRamp": [
+          "oklch(20% 0.05 80)",
+          "oklch(30% 0.07 80)",
+          "oklch(40% 0.09 80)",
+          "oklch(51% 0.11 80)",
+          "oklch(63% 0.13 80)",
+          "oklch(76% 0.13 80)",
+          "oklch(87% 0.08 80)",
+          "oklch(96% 0.03 80)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1a1a1a",
+        "darkCounterpart": "ink-dark",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(25% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(45% 0 0)",
+          "oklch(58% 0 0)",
+          "oklch(70% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#57606a",
+        "darkCounterpart": "ink-muted-dark",
+        "tonalRamp": [
+          "oklch(18% 0.012 255)",
+          "oklch(28% 0.015 255)",
+          "oklch(38% 0.018 255)",
+          "oklch(48% 0.020 255)",
+          "oklch(60% 0.018 255)",
+          "oklch(72% 0.014 255)",
+          "oklch(85% 0.009 255)",
+          "oklch(95% 0.004 255)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d0d7de",
+        "darkCounterpart": "border-dark",
+        "tonalRamp": [
+          "oklch(18% 0.010 240)",
+          "oklch(28% 0.012 240)",
+          "oklch(40% 0.014 240)",
+          "oklch(52% 0.015 240)",
+          "oklch(66% 0.014 240)",
+          "oklch(79% 0.012 240)",
+          "oklch(88% 0.008 240)",
+          "oklch(96% 0.004 240)"
+        ]
+      },
+      "surface-page": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#fafafa",
+        "darkCounterpart": "surface-page-dark",
+        "tonalRamp": [
+          "oklch(15% 0.004 250)",
+          "oklch(23% 0.005 250)",
+          "oklch(34% 0.005 250)",
+          "oklch(47% 0.005 250)",
+          "oklch(61% 0.004 250)",
+          "oklch(76% 0.003 250)",
+          "oklch(89% 0.002 250)",
+          "oklch(98% 0.001 250)"
+        ]
+      },
+      "chip": {
+        "role": "neutral",
+        "displayName": "Chip Grey",
+        "canonical": "#eaeef2",
+        "darkCounterpart": "chip-dark",
+        "tonalRamp": [
+          "oklch(17% 0.008 245)",
+          "oklch(27% 0.010 245)",
+          "oklch(39% 0.011 245)",
+          "oklch(51% 0.011 245)",
+          "oklch(65% 0.010 245)",
+          "oklch(78% 0.008 245)",
+          "oklch(90% 0.006 245)",
+          "oklch(97% 0.003 245)"
+        ]
+      },
+      "alarm-wash": {
+        "role": "primary",
+        "displayName": "Alarm Wash",
+        "canonical": "#fff5f4",
+        "darkCounterpart": "alarm-wash-dark",
+        "tonalRamp": [
+          "oklch(20% 0.04 25)",
+          "oklch(30% 0.05 25)",
+          "oklch(42% 0.05 25)",
+          "oklch(55% 0.05 25)",
+          "oklch(68% 0.04 25)",
+          "oklch(80% 0.03 25)",
+          "oklch(91% 0.02 25)",
+          "oklch(98% 0.008 25)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The snapshot age, and nothing else. The largest element on the page by a wide margin."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The wipboard wordmark in the header. Deliberately smaller than the age beneath it."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "A project name. Rises to weight 700 on a suspect row."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The freeform note and the prose in the empty and version-mismatch panels."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Stage name (uppercased), stage-count chips, the git line. Metadata sits one step up at 0.85rem."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Machine text only: a branch name, or a command the reader must type."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      { "name": "wide", "value": "40rem" },
+      { "name": "measure", "value": "52rem" }
+    ],
+    "notes": {
+      "shadows": "Deliberately empty. There is no box-shadow anywhere in the stylesheet; depth is tone plus a 1px hairline. Recorded as current state, not an invariant: the author chose 'flat now, shadows allowed later' on 2026-10-31.",
+      "motion": "Deliberately empty. There is not one transition, animation or fade in the system. A page read for four seconds has nothing to animate.",
+      "source": "The entire design system is one inline STYLE constant in worker/src/render.ts. There is no stylesheet, no build step and no framework."
+    }
+  },
+  "components": [
+    {
+      "name": "Card Row",
+      "kind": "card",
+      "refersTo": "card-row",
+      "description": "One project on the board: name and stage, a wrapping metadata line, an optional note, and a git line. Not interactive.",
+      "html": "<li class=\"ds-row\"><div class=\"ds-row-head\"><span class=\"ds-row-name\">budgerr</span><span class=\"ds-row-stage\">spec</span></div><div class=\"ds-row-meta\"><span>touched 3d</span><span>12d in stage</span></div><p class=\"ds-row-note\">waiting on an API key</p><div class=\"ds-row-git\"><span class=\"ds-row-branch\">main</span><span>tighten the import guard</span><span>2 changed</span></div></li>",
+      "css": ".ds-row { list-style: none; background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: .6rem .7rem; font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: #1a1a1a; } .ds-row-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; } .ds-row-name { font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; } .ds-row-stage { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #57606a; } .ds-row-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .2rem; font-size: .85rem; color: #57606a; } .ds-row-note { margin: .4rem 0 0; overflow-wrap: anywhere; } .ds-row-git { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .3rem; font-size: .8rem; color: #57606a; } .ds-row-branch { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; } @media (prefers-color-scheme: dark) { .ds-row { background: #161b22; border-color: #30363d; color: #e6edf3; } .ds-row-stage, .ds-row-meta, .ds-row-git { color: #8b949e; } }"
+    },
+    {
+      "name": "Card Row (suspect)",
+      "kind": "card",
+      "refersTo": "card-row-suspect",
+      "description": "A row whose recorded stage may be a lie, because commits landed after the stage was last set. Three signals at once: a 6px red left edge, a tinted background, and a heavier name.",
+      "html": "<li class=\"ds-row ds-row-suspect\"><div class=\"ds-row-head\"><span class=\"ds-row-name\">wipboard</span><span class=\"ds-row-stage\">building</span></div><div class=\"ds-row-meta\"><span>touched just now</span><span>41d in stage</span><span class=\"ds-flag\">!</span><span class=\"ds-flag\">stuck 41d</span><span class=\"ds-flag\">dirty</span></div></li>",
+      "css": ".ds-row { list-style: none; background: #fff; border: 1px solid #d0d7de; border-radius: 8px; padding: .6rem .7rem; font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: #1a1a1a; } .ds-row-suspect { border-left: 6px solid #b42318; background: #fff5f4; } .ds-row-suspect .ds-row-name { font-weight: 700; } .ds-row-head { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; } .ds-row-name { font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; } .ds-row-stage { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #57606a; } .ds-row-meta { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .2rem; font-size: .85rem; color: #57606a; } .ds-flag { font-weight: 700; color: #b42318; } @media (prefers-color-scheme: dark) { .ds-row { background: #161b22; border-color: #30363d; color: #e6edf3; } .ds-row-suspect { border-left-color: #ff7b72; background: #2d1618; } .ds-row-stage, .ds-row-meta { color: #8b949e; } .ds-flag { color: #ff7b72; } }"
+    },
+    {
+      "name": "Age Header",
+      "kind": "custom",
+      "refersTo": "age-stale",
+      "description": "The signature component. The snapshot's own age, set larger than the wordmark, in one of three tones, always paired with words when the news is bad.",
+      "html": "<header class=\"ds-header\"><h1 class=\"ds-wordmark\">wipboard</h1><p class=\"ds-age ds-age-stale\">2d ago</p><p class=\"ds-age-note ds-age-note-stale\">This machine has probably been off. Nothing has been pushed since.</p><p class=\"ds-host\">pavilion</p><ul class=\"ds-stages\"><li>building 6</li><li>spec 4</li><li>shipped 3</li></ul></header>",
+      "css": ".ds-header { font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: #1a1a1a; margin-bottom: 1rem; } .ds-wordmark { font-size: 1.1rem; margin: 0 0 .25rem; letter-spacing: .02em; } .ds-age { font-size: 1.6rem; font-weight: 700; margin: 0; } .ds-age-fresh { color: #1a7f37; } .ds-age-warn { color: #9a6700; } .ds-age-stale { color: #b42318; } .ds-age-note { margin: .25rem 0 0; font-size: .9rem; } .ds-age-note-stale { color: #b42318; font-weight: 600; } .ds-host { margin: .25rem 0 0; font-size: .85rem; color: #57606a; } .ds-stages { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 0; padding: 0; list-style: none; } .ds-stages li { font-size: .8rem; padding: .1rem .45rem; border-radius: 999px; background: #eaeef2; } @media (prefers-color-scheme: dark) { .ds-header { color: #e6edf3; } .ds-age-fresh { color: #3fb950; } .ds-age-warn { color: #e3b341; } .ds-age-stale, .ds-age-note-stale { color: #ff7b72; } .ds-host { color: #8b949e; } .ds-stages li { background: #21262d; } }"
+    },
+    {
+      "name": "Stage Chip",
+      "kind": "chip",
+      "refersTo": "chip-stage",
+      "description": "A stage name and how many projects sit in it. A count, never a filter: the page is read-only.",
+      "html": "<ul class=\"ds-stages\"><li>idea 2</li><li>building 6</li><li>testing 1</li><li>parked 5</li></ul>",
+      "css": ".ds-stages { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; } .ds-stages li { font-size: .8rem; letter-spacing: .04em; padding: .1rem .45rem; border-radius: 999px; background: #eaeef2; color: #1a1a1a; } @media (prefers-color-scheme: dark) { .ds-stages li { background: #21262d; color: #e6edf3; } }"
+    },
+    {
+      "name": "Flag",
+      "kind": "custom",
+      "refersTo": "flag",
+      "description": "The CLI's own flag strings, reproduced verbatim so the terminal and the page never need translating. Words first, colour second.",
+      "html": "<div class=\"ds-flags\"><span class=\"ds-flag\">!</span><span class=\"ds-flag\">stuck 41d</span><span class=\"ds-flag\">dirty</span><span class=\"ds-flag\">^3</span></div>",
+      "css": ".ds-flags { display: flex; flex-wrap: wrap; gap: .4rem; font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; font-size: .85rem; } .ds-flag { font-weight: 700; color: #b42318; } @media (prefers-color-scheme: dark) { .ds-flag { color: #ff7b72; } }"
+    },
+    {
+      "name": "Empty Panel",
+      "kind": "card",
+      "refersTo": "empty-panel",
+      "description": "Nothing pushed yet, or a payload the Worker is too old to read. Dashed rather than solid, and always naming the exact command that fixes it.",
+      "html": "<div class=\"ds-empty\"><p>Nothing has been pushed to this dashboard.</p><p>Run <code class=\"ds-code\">wipboard push</code> on the machine that holds the repos.</p></div>",
+      "css": ".ds-empty { background: #fff; border: 1px dashed #d0d7de; border-radius: 8px; padding: 1rem; font: 16px/1.45 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: #1a1a1a; } .ds-empty p { margin: 0 0 .5rem; } .ds-empty p:last-child { margin-bottom: 0; } .ds-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: #eaeef2; padding: .1rem .3rem; border-radius: 4px; } @media (prefers-color-scheme: dark) { .ds-empty { background: #161b22; border-color: #30363d; color: #e6edf3; } .ds-code { background: #21262d; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Shop Door Board",
+    "overview": "This is the board nailed up by the door of a workshop, read on the way past. Nobody stands in front of it. They glance, take one fact away, and keep walking. Everything here follows from that: the oldest thing on the page is the biggest, the states that matter shout in a single word, and there is nothing to linger over because lingering was never the job.\n\nThe page descends from a terminal table and does not pretend otherwise. It is flat, system fonts, bordered rectangles, no imagery, no illustration, no empty decoration. What makes it feel designed rather than unstyled is the hierarchy: one enormous number at the top (how old this snapshot is), then a list of cards whose only ornament is a thick red edge on the rows that are lying to you. The restraint is load-bearing, not an absence of effort. A board that looked expensive would be a board you distrust.\n\nIt is read on a phone, usually in the dark, usually one-handed, usually for about four seconds. The dark scheme is not a courtesy, it is the common case. Single column is the base layout and the wide layout is the afterthought, which is the reverse of how most pages are built here.",
+    "keyCharacteristics": [
+      "One number dominates the page, and it is a confession, not a metric.",
+      "Flat surfaces, 1px borders, zero shadows.",
+      "System fonts only. Monospace appears exactly where the content is machine text.",
+      "Red is reserved. When it appears, something is wrong.",
+      "Dark mode is a first-class scheme, not an inversion.",
+      "No motion anywhere. Nothing animates, transitions, or fades."
+    ],
+    "rules": [
+      {
+        "name": "The Three Tones Rule",
+        "body": "Red, green and amber are condition colours. They may only ever report a state the data actually holds: snapshot freshness and the suspect flag. They are never used for emphasis, branding, links, headings, or because a region needed livening up. On a healthy board the page is entirely grey, and that is correct.",
+        "section": "colors"
+      },
+      {
+        "name": "The Inherited Palette Rule",
+        "body": "These values came from GitHub's interface, not from a decision. The roles are binding: three distinguishable freshness tones, one alarm colour, one muted tier for context, one hairline, one chip fill. The hex values are the current implementation and a future pass may replace them, provided it keeps the roles and clears WCAG 2.2 AA.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Colour Alone Rule",
+        "body": "Every condition colour ships with text that says the same thing. The age tone is paired with a written note, the suspect row is paired with a 6px edge and a bolder name, the flags are words and not swatches. Colour is the second channel here and never the first.",
+        "section": "colors"
+      },
+      {
+        "name": "The Age Outranks The Name Rule",
+        "body": "The snapshot age is set larger than the product's own wordmark and larger than every project on the board. A visitor who reads one thing must read how old this page is, because a dashboard that silently shows yesterday is the exact failure this project exists to prevent.",
+        "section": "typography"
+      },
+      {
+        "name": "The Monospace Means Machine Rule",
+        "body": "Monospace marks text the machine produced or the reader must type: a branch name, a command. A project name is a human name and stays in the UI face even though a terminal would have set it in mono.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Column Rule",
+        "body": "The phone is the design target and the wide screen is the accommodation. Build and check the narrow layout first; the 40rem block may only adjust padding, gap and measure, never introduce a new arrangement.",
+        "section": "layout"
+      },
+      {
+        "name": "The Thick Edge Means Suspect Rule",
+        "body": "A 6px left border is reserved for a row whose stage may be a lie. No other element may take a border wider than 1px, or the one signal that matters stops being visible at a glance.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do keep the snapshot age the largest element on the page (1.6rem/700), larger than the wordmark and every project name.",
+      "Do pair every condition colour with words. The tone is the second channel, never the only one.",
+      "Do design the narrow layout first and treat the 40rem block as padding and measure only.",
+      "Do give dark mode equal care. It is the common case, read on a phone at night, and every condition colour has a separate dark value for contrast reasons.",
+      "Do use the CLI's exact flag strings (!, stuck Nd, dirty, ^N) so the two views never disagree.",
+      "Do keep the whole stylesheet inline in render.ts. No build step, no framework, no client-side fetch: the page must work with nothing but the HTML that arrives."
+    ],
+    "donts": [
+      "Don't use red, green or amber for anything that is not a reported condition. No red headings, no green buttons, no amber highlights.",
+      "Don't add a second column at any width.",
+      "Don't add motion. There is not one transition, animation or fade in the system, and a page read for four seconds has nothing to animate.",
+      "Don't introduce a border heavier than 1px except the suspect row's 6px left edge.",
+      "Don't add a fourth radius, a third font family, or a colour that does not have a role listed above.",
+      "Don't make anything interactive. The dashboard is read-only by product decision; a button here implies a write path that does not exist.",
+      "Don't interpolate a value into the markup without escapeHtml. Project names and notes are user text read in a browser, and the rule lives as a comment at that function."
+    ]
+  }
+}

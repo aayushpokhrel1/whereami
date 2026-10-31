@@ -1,6 +1,27 @@
 # Product
 
-## The problem
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+web
+
+The product is a terminal CLI plus one optional web surface: the Cloudflare Worker in
+`worker/`, server-rendered and read on a phone. The CLI itself has no visual design surface
+beyond the table it prints, whose column rules live in the code that prints them.
+
+## Users
+
+A solo developer or a small team with more repos than attention, working locally, who would
+rather run one command than maintain a board. Confirmed on 2026-10-26: the intended audience
+is **strangers installing from PyPI**, not only the author. The one-line install, the README
+and the pre-release status are a real distribution commitment, so when a stranger's needs and
+the author's convenience conflict, the stranger wins.
+
+Not for project management, not for teams tracking each other's work, not for anything with
+tickets.
+
+### The problem
 
 A developer with twenty side projects knows the state of two of them. The rest are a folder
 of repos whose last commit could be yesterday or last March, half of them with uncommitted
@@ -12,7 +33,7 @@ developer to enter status by hand. That is the exact action they have already pr
 will not do. A tracker you have to remember to update becomes one more project you forget
 to update.
 
-## The insight
+### The insight
 
 Most of what you want to know is already on disk. Git knows when each repo last moved,
 which branch it is on, whether there is uncommitted work, whether anything is unpushed.
@@ -21,15 +42,90 @@ None of that needs typing.
 Exactly one field needs a human: which cycle the project is in. "Last commit was 3 days ago"
 does not distinguish a project in design from one in testing from one that shipped.
 
-So: derive everything derivable, ask for the one field that is left, and use the derived data
-to catch the hand-written field lying. That last part is the product. When a repo has commits
-newer than its stage, the board marks itself suspect.
+## Product Purpose
 
-## Who it is for
+Derive everything derivable, ask for the one field that is left, and use the derived data to
+catch the hand-written field lying. Success is a board a developer trusts without maintaining
+it, read in one command, that says which project to pick up today.
 
-A solo developer or a small team with more repos than attention, working locally, who would
-rather run one command than maintain a board. Not for project management, not for teams
-tracking each other's work, not for anything with tickets.
+## Positioning
+
+The `!` suspect flag is the mechanism a neighbouring tracker cannot truthfully copy. When a
+repo has commits newer than its stage, the board marks itself suspect. Every competitor's
+status field is hand-entered and therefore silently wrong; this one compares the hand-entered
+field against git and says so when the two disagree. A tool that only displayed derived git
+state would be a nicer `ls`; a tool that only stored stages would be a worse Trello. The
+contradiction between them is the product.
+
+## Operating Context
+
+- **The terminal, unprompted.** The board is useful only if seen without choosing to see it,
+  so the intended install is a shell alias, a `SessionStart` hook, or the Claude Code plugin
+  (`/wipboard`), not a command remembered.
+- **A folder of repos.** `wipboard init <root>` discovers repos one level deep under each
+  registered root. Several of the folders it was built against have no git at all.
+- **A phone, away from the machine.** The Worker page is the same board as a web page, pushed
+  by `wipboard push`, ideally from a `post-commit` hook. It is a snapshot and can be stale,
+  which is why the page leads with its own age.
+- **Private by construction.** The board is the user's whole project list, so the Worker
+  refuses to serve it until either token mode (`VIEW_TOKEN`) or Cloudflare Access is
+  configured. A missing or misspelled variable locks the board rather than publishing it.
+
+## Capabilities and Constraints
+
+- **Fixed stage vocabulary:** `idea spec building testing shipped parked`, plus a freeform
+  `--note`.
+- **The three flags:** `!` (suspect: commits newer than the stage change), `stuck Nd` (stage
+  unchanged over 30 days while commits kept landing), `dirty` / `^N` (uncommitted or unpushed
+  work).
+- **The CLI is standard library only**, Python 3.11+. The Worker has its own dev dependencies;
+  nothing installed to run `wipboard` does.
+- **The store is `~/.config/wipboard/projects.json`** and holds only `stage`, `note`,
+  `stage_set_at`, and the list of roots. Branch, last commit time, dirty state and unpushed
+  count are derived on every run. No derived field is cached.
+- **Nothing runs in the background.** No daemon, no hook writing into the store.
+- **git failures are normal, not errors.** Every git call degrades to "no git" rather than
+  raising.
+- **`wipboard md` writes a view, not a store.** Regenerated, never hand-edited.
+- **The dashboard is read-only.** Stages change in the CLI.
+- **One machine, one writer.** Every push overwrites a single KV key.
+
+These describe the product as built on 2026-10-26. The user was asked on that date whether to
+pin any of them as binding commitments on future work and answered that **nothing is binding
+yet**, so they are recorded as current facts, not as constraints a future decision may not
+revisit.
+
+## Evidence on Hand
+
+- `docs/board.svg`: real output from throwaway repos, not a mockup. Regenerated with
+  `python scripts/demo_board.py | python scripts/board_svg.py`.
+- A live deployment at `https://wipboard.enamelvault.com`, token mode behind Cloudflare Access.
+- A covered test suite for both the CLI and the Worker. The counts live in
+  `docs/OPERATIONS.md`, where a test recounts them; they are deliberately not repeated here,
+  because a number in a second document rots silently.
+- Specs for both builds in `docs/superpowers/specs/`.
+
+**Absences future work must not fabricate:** not published to PyPI (version 0.1.0,
+pre-release). No users, no testimonials, no adoption numbers, no benchmarks, no press. The
+author's own board (20 projects) is the only usage data that exists.
+
+## Product Principles
+
+1. **Never ask for what git already knows.** Every field the machine can derive is derived on
+   every run. A cached derived field is the staleness this tool exists to prevent.
+2. **The board must admit when it is lying.** The `!` flag and the dashboard's age header are
+   the same principle on two surfaces: a view that can be wrong says so, prominently.
+3. **One source of truth.** The store holds the human field; git holds everything else; every
+   other artifact (`wipboard md`, the Worker page) is a regenerated view.
+4. **A stranger installs it in one line.** Dependencies, config files and setup steps are each
+   a reason someone never runs it.
+
+## Accessibility & Inclusion
+
+The Worker dashboard is held to **WCAG 2.2 AA** (confirmed 2026-10-26). In practice this is
+load-bearing for the flags: contrast, visible focus, correct semantics, and never conveying a
+flag's meaning by colour alone, since the suspect, stuck, dirty and unpushed states are the
+entire value of the page.
 
 ## Decisions
 

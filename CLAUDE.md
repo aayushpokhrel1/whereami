@@ -22,6 +22,7 @@ query/path/explain, which is all this repo's size warrants.
 | --- | --- |
 | `README.md` | What it is, install, usage, the flags. The public face |
 | `PRODUCT.md` | Who it is for, decisions, what is deferred **and why** |
+| `DESIGN.md` | The dashboard's visual system: tokens in the frontmatter, named rules in the prose. Its machine-readable extension is `.impeccable/design.json`. Covers `worker/` only |
 | `docs/OPERATIONS.md` | Run, verify, release to PyPI, deploy the Worker, hook setup, environment traps |
 | `worker/` | The optional dashboard Worker. Its own tests live in `worker/test/` |
 | a **code comment at the site** | A rule about specific code (a git invocation that must stay quiet on a non-repo, a date format the store depends on) |
@@ -34,8 +35,15 @@ query/path/explain, which is all this repo's size warrants.
 `HANDOVER.md` is gitignored and local-only, so nothing durable may live there. Before adding a
 line to it, ask: will this still be true in a month? If yes it belongs in a doc above.
 
-There is deliberately **no `DESIGN.md`**: there is no UI. The terminal table's column rules
-live in the code that prints them, next to the code.
+**`DESIGN.md` covers the Worker dashboard, and only that.** This file claimed there was no
+`DESIGN.md` because there was no UI; that stopped being true when the dashboard shipped on
+2026-10-20, and the claim was corrected on 2026-10-31 rather than left for the next reader to
+trust. The dashboard's whole design system is one inline `STYLE` constant in
+`worker/src/render.ts`, which is small enough to read in full and too easy to extend
+inconsistently, which is what the file is for.
+
+The **terminal table still has no design doc**, deliberately. Its column rules live in the
+code that prints them, next to the code.
 
 **Do not create a `LESSONS.md`.** A lesson has one home, chosen by reach: a rule about specific
 code is a comment at that code, a lesson that generalises goes in the vault, and a dated
@@ -64,7 +72,7 @@ file. "Update the docs" means sweep all of them.
   re-reads this list.
 - **git failures are normal, not errors.** Three of the folders this was built against have
   no git at all. Every git call degrades to "no git" rather than raising.
-- **Verify with `python -m pytest`** (16 tests) and `npm --prefix worker test` (25, plus
+- **Verify with `python -m pytest`** (17 tests) and `npm --prefix worker test` (25, plus
   `tsc`). pytest is required; running the test file directly executes nothing and exits 0. The
   drift and sort logic is the only non-trivial code here and it has to stay covered: the `!`
   flag is the entire value proposition, so a test that goes red when it breaks is worth more
