@@ -107,7 +107,8 @@ revisit.
 
 **Absences future work must not fabricate:** not published to PyPI (version 0.1.0,
 pre-release). No users, no testimonials, no adoption numbers, no benchmarks, no press. The
-author's own board (20 projects) is the only usage data that exists.
+author's own board is the only usage data that exists, and its project count is current state
+that belongs in the handover, not here.
 
 ## Product Principles
 
