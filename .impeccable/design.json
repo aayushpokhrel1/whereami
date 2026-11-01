@@ -2,6 +2,8 @@
   "schemaVersion": 2,
   "generatedAt": "2026-10-31T00:00:00Z",
   "title": "Design System: wipboard",
+  "supersededBy": "docs/superpowers/specs/2026-11-01-dashboard-redesign.md",
+  "status": "documents the outgoing implementation; a redesign is approved and not yet built",
   "extensions": {
     "colorMeta": {
       "alarm": {
@@ -275,8 +277,8 @@
         "section": "typography"
       },
       {
-        "name": "The One Column Rule",
-        "body": "The phone is the design target and the wide screen is the accommodation. Build and check the narrow layout first; the 40rem block may only adjust padding, gap and measure, never introduce a new arrangement.",
+        "name": "The One Column Rule (withdrawn)",
+        "body": "WITHDRAWN 2026-11-01. Inferred from the stylesheet's single breakpoint rather than decided, and rejected by the author. Above 40rem a multi-column grid serves a glanceable board better than two viewports of scrolling; the sort order is the only real constraint on how. See docs/superpowers/specs/2026-11-01-dashboard-redesign.md.",
         "section": "layout"
       },
       {
@@ -295,8 +297,8 @@
     ],
     "donts": [
       "Don't use red, green or amber for anything that is not a reported condition. No red headings, no green buttons, no amber highlights.",
-      "Don't add a second column at any width.",
-      "Don't add motion. There is not one transition, animation or fade in the system, and a page read for four seconds has nothing to animate.",
+      "WITHDRAWN 2026-11-01: Don't add a second column at any width.",
+      "WITHDRAWN 2026-11-01: Don't add motion. This was inferred from the stylesheet containing no transitions, not decided. Motion is open to the redesign.",
       "Don't introduce a border heavier than 1px except the suspect row's 6px left edge.",
       "Don't add a fourth radius, a third font family, or a colour that does not have a role listed above.",
       "Don't make anything interactive. The dashboard is read-only by product decision; a button here implies a write path that does not exist.",

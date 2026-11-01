@@ -113,6 +113,14 @@ components:
 
 # Design System: wipboard
 
+> **A redesign is approved and this file documents the world it replaces.** See
+> `docs/superpowers/specs/2026-11-01-dashboard-redesign.md`. Read what follows as evidence of
+> the outgoing implementation, not as a constraint on the new one. The invariants that survive
+> any visual world are listed in that spec: the age header outranking everything, no condition
+> by colour alone, read-only, no re-sorting, no dependencies, `escapeHtml` on every
+> interpolation. Everything else here is open. Three rules have already been withdrawn, each
+> marked below, because they were inferred from the implementation rather than decided.
+
 ## Overview
 
 **Creative North Star: "The Shop Door Board"**
@@ -251,9 +259,12 @@ document to be read.
 
 ### Named Rules
 
-**The One Column Rule.** The phone is the design target and the wide screen is the
-accommodation. Build and check the narrow layout first; the `40rem` block may only adjust
-padding, gap and measure, never introduce a new arrangement.
+~~**The One Column Rule.**~~ **Withdrawn 2026-11-01.** It was inferred from the single
+breakpoint in the stylesheet, which only adjusts padding, gap and measure, and then given a
+justification nobody had asked for. The author rejected it. Below `40rem` single column is
+arithmetic rather than a rule; above it, a multi-column grid serves a glanceable board better
+than two viewports of scrolling do. The one real constraint on how is the sort order, and the
+redesign spec works through it.
 
 ## Elevation & Depth
 
@@ -344,9 +355,10 @@ carries a comment saying why. Never render the tone without its note.
 
 - **Don't** use red, green or amber for anything that is not a reported condition. No red
   headings, no green buttons, no amber highlights.
-- **Don't** add a second column at any width.
-- **Don't** add motion. There is not one transition, animation or fade in the system, and a
-  page read for four seconds has nothing to animate.
+- ~~**Don't** add a second column at any width.~~ **Withdrawn 2026-11-01**, with The One
+  Column Rule above.
+- ~~**Don't** add motion.~~ **Withdrawn 2026-11-01.** This was inferred from the stylesheet
+  containing no transitions, not decided. Motion is open to the redesign.
 - **Don't** introduce a border heavier than 1px except the suspect row's 6px left edge.
 - **Don't** add a fourth radius, a third font family, or a colour that does not have a role
   listed above.
